@@ -19,41 +19,34 @@ end
 
 mutable struct MHChainState{
     P<:Real,
-    R<:Real,
-    F<:AbstractTargetFunction,
-    Q<:ProposalDist,
-    B<:AbstractParamBounds
+    T<:Real,
+    S<:MCMCSubject,
+    R<:AbstractRNG
 } <: AbstractMCMCState
-    target::F
-    pdist::Q
-    bounds::B
-    #rng:RNG
+    subject::S
+    rng::R
     params::Vector{P}
-    log_value::R
-    #exec_context::ExecContext = ExecContext()
-    nsamples::Int
+    log_value::T
+    nsamples::Int64
     multiplicity::Int
 
-    function MHChainState{P,R,F,Q,B}(
-        target::F,
-        pdist::Q,
-        bounds::B,
+    function MHChainState{P,T,S,R}(
+        subject::S,
+        rng::R,
         params::Vector{P},
-        log_value::R,
-        nsamples::Int = 0,
-        multiplicity::Int = 0
+        log_value::T,
+        nsamples::Integer = 0,
+        multiplicity::Integer = 0
     ) where {
         P<:Real,
-        R<:Real,
-        F<:AbstractTargetFunction,
-        Q<:ProposalDist,
-        B<:AbstractParamBounds
+        T<:Real,
+        S<:MCMCSubject,
+        R<:AbstractRNG
     }
-        length(params) != length(bounds) && throw(DimensionMismatch("length(params) != length(bounds)"))
-        new{P,R,F,Q,B}(
-            target,
-            pdist,
-            bounds,
+        length(params) != length(subject.bounds) && throw(DimensionMismatch("length(params) != length(bounds)"))
+        new{P,T,S,R}(
+            subject,
+            rng,
             params,
             log_value,
             nsamples,
@@ -64,24 +57,21 @@ end
 
 
 function MHChainState(
-    target::F,
-    pdist::Q,
-    bounds::B,
+    subject::S,
+    rng::R,
     params::Vector{P},
-    log_value::R,
-    nsamples::Int = 0,
-    multiplicity::Int = 0
+    log_value::T,
+    nsamples::Integer = 0,
+    multiplicity::Integer = 0
 ) where {
     P<:Real,
-    R<:Real,
-    F<:AbstractTargetFunction,
-    Q<:ProposalDist,
-    B<:AbstractParamBounds
+    T<:Real,
+    S<:MCMCSubject,
+    R<:AbstractRNG
 }
-    MHChainState{P,R,F,Q,B}(
-        target,
-        pdist,
-        bounds,
+    MHChainState{P,T,S,R}(
+        subject,
+        rng,
         params,
         log_value,
         nsamples,
@@ -91,8 +81,8 @@ end
 
 
 
-
-function Base.push!(state::MHChainState, params::Vector{<:Real}, log_value::Real, rng::AbstractRNG)
+function mcmc_update!(state::MHChainState, params::Vector{<:Real}, log_value::Real)::Bool
+    rng = state.rng
     isnan(log_value) && error("Encountered NaN log_value")
     accepted = log(rand(rng)) < log_value - state.log_value
     if accepted
@@ -103,22 +93,33 @@ function Base.push!(state::MHChainState, params::Vector{<:Real}, log_value::Real
     else
         state.multiplicity += 1
     end
-    state
+    accepted
 end
 
 
-function mcmc_step(state::MHChainState, rng::AbstractRNG, exec_context::ExecContext = ExecContext())
+function mcmc_step!(state::MHChainState, exec_context::ExecContext = ExecContext())
+    rng = state.rng
+    exec_context = state.exec_context
     params_old = state.params
     params_new = similar(params_old) # TODO: Avoid memory allocation
+
+    # TODO: mofify/tag counter(s) for counter-based rng
     proposal_rand!(rng, state.pdist, params_new, params_old)
     apply_bounds!(params_new, state.bounds)
     log_value_new = target_logval(state.target, params_new, exec_context)
-    push!(state, params_new, log_value_new, rng)
+
+    # TODO: mofify/tag counter(s) for counter-based rng
+    mcmc_update!(state, params_new, log_value_new, rng)
+
     state
 end
 
 
-function mcmc_step(states::AbstractVector{MHChainState{P, R}}, rng::AbstractRNG, exec_context::ExecContext = ExecContext()) where {P,R}
+#=
+function mcmc_step(states::AbstractVector{MHChainState{P, R}}, exec_context::ExecContext = ExecContext()) where {P,R}
+    rng = state.rng
+    exec_context = state.exec_context
+
     # TODO: Avoid memory allocation:
     params_old = hcat((s.params for s in states)...)
     params_new = similar(params_old)
@@ -135,7 +136,7 @@ function mcmc_step(states::AbstractVector{MHChainState{P, R}}, rng::AbstractRNG,
     end
     states
 end
-
+=#
 
 
 

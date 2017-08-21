@@ -12,8 +12,8 @@ include.([
     "execcontext.jl",
     "onlinestats.jl",
     "parambounds.jl",
-    "targetfunction.jl",
     "proposaldist.jl",
+    "targetfunction.jl",
     "mcmc.jl",
     "mhsampler.jl",
 ])

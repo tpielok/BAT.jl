@@ -3,6 +3,20 @@
 abstract type AbstractMCMCState end
 
 
+mutable struct MCMCSubject{
+    F<:AbstractTargetFunction,
+    Q<:ProposalDist,
+    B<:AbstractParamBounds
+}
+    target::F
+    pdist::Q
+    bounds::B
+end
+
+export MCMCSubject
+
+
+
 """
     mcmc_step(state::AbstractMCMCState, rng::AbstractRNG, exec_context::ExecContext = ExecContext())
     mcmc_step(states::AbstractVector{<:AbstractMCMCState}, rng::AbstractRNG, exec_context::ExecContext = ExecContext()) where {P,R}
