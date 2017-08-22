@@ -15,6 +15,42 @@ end
 
 export MCMCSubject
 
+Base.length(subject::MCMCSubject) = length(subject.bounds)
+
+
+mutable struct MCMCSample{
+    P<:Real,
+    T<:Real,
+    W<:Real
+} <: AbstractMCMCState
+    params::Vector{P}
+    log_value::T
+    weight::W
+    nsamples::Int64
+end
+
+Base.length(sample::MCMCSample) = length(sample.params)
+
+
+function MCMCSample(
+    P<:Real,
+    T<:Real,
+    W<:Real
+) where {
+    P<:Real,
+    T<:Real,
+    S<:MCMCSubject,
+    R<:AbstractRNG
+}
+    MHChainState{P,T,S,R}(
+        subject,
+        rng,
+        params,
+        log_value,
+        nsamples,
+        multiplicity
+    )
+end
 
 
 """
