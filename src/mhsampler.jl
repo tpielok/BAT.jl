@@ -33,10 +33,15 @@ mcmc_iterate(
     callback,
     chain::MCMCChain{<:MetropolisHastings},
     exec_context::ExecContext = ExecContext();
-    granularity::Int = 1
-    max_nsamples::Int = 1
+    max_nsamples::Int64 = Int64(1)
     max_nsteps::Int = 1000
+    max_time::Float64 = Inf
+    granularity::Int = 1
 )
+    start_time = time()
+    nsteps = 0
+    nsamples = 0
+
     target = chain.target
     state = chain.state
     rng = chain.rng
@@ -49,30 +54,42 @@ mcmc_iterate(
     proposed_sample = state.proposed_sample
 
     current_params = current_sample.params
-    current_log_value = current_sample.log_value
-
     proposed_params = proposed_sample.params
 
-    if state.proposal_accepted
-        copy!(current_sample, proposed_sample)
-        state.current_nreject = 0
-        state.proposal_accepted = false
-    end
+    while nsamples < max_nsamples && nsteps < max_nsteps && (time() - start_time) < max_time
+        if state.proposal_accepted
+            copy!(current_sample, proposed_sample)
+            state.current_nreject = 0
+            state.proposal_accepted = false
+        end
 
-    accepted = false
-    nsteps = 0
-    nsamples = 0
-    while nsamples < max_nsamples && nsteps < max_nsteps
+        current_log_value = current_sample.log_value
+        T = typeof(current_log_value)
+
+        # Propose new parameters:
         # TODO: mofify/tag counter(s) for counter-based rng
         proposal_rand!(rng, pdist, proposed_params, current_params)
         apply_bounds!(proposed_params, bounds)
 
-        proposed_log_value = target_logval(tfunc, params_next, exec_context)
+        # log of ratio of forward/reverse transition probability
+        log_tpr = if issymmetric(pdist)
+            T(0)
+        else
+            log_tp_fwd = proposal_logpdf(, params_next, current_params)
+            log_tp_rev = proposal_logpdf(, current_params, params_next)
+            T(log_tp_fwd - log_tp_rev)
+        end
 
-        log_tp_fwd = proposal_logpdf(, params_next, current_params)
+        # Evaluate target function at new parameters:
+        proposed_log_value = if !any(isoob, params_next)
+            T(target_logval(tfunc, params_next, exec_context))
+        else
+            T(-Inf)
+        end
 
+        # Metropolis-Hastings accept/reject:
         # TODO: mofify/tag counter(s) for counter-based rng
-        accepted = rand(rng) < exp(log_value_next - log_value_last)
+        accepted = rand(rng) < exp(log_value_next - log_value_last - log_tpr)
 
         nsteps += 1
         state.nsteps += 1
