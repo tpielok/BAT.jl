@@ -14,6 +14,7 @@ include.([
     "parambounds.jl",
     "proposaldist.jl",
     "targetfunction.jl",
+    "targetsubject.jl",
     "mcmc.jl",
     "mhsampler.jl",
 ])

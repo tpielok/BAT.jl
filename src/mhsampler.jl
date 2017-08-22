@@ -1,11 +1,131 @@
 # This file is a part of BAT.jl, licensed under the MIT License (MIT).
 
 
+mutable struct MHState{
+    Q<:AbstractProposalDist,
+    S<:MCMCSample,
+} <: AbstractMCMCState
+    pdist::Q
 
-function proposal_rand_target_logval!(
+    current_sample::S
+    proposed_sample::S
+    proposal_accepted::Bool
+    current_nreject::Int64
+
+    rng::R
+
+    nsteps::Int64
+    naccept::Int64
+end
+
+
+struct MetropolisHastings <: MCMCAlgorithm{MHState} end
+export MetropolisHastings
+
+
+
+acceptance_ratio(state::MHState) = chain.state.naccept / state.nsteps
+
+
+
+
+mcmc_iterate(
+    callback,
+    chain::MCMCChain{<:MetropolisHastings},
+    exec_context::ExecContext = ExecContext();
+    granularity::Int = 1
+    max_nsamples::Int = 1
+    max_nsteps::Int = 1000
+)
+    target = chain.target
+    state = chain.state
+    rng = chain.rng
+
+    tfunc = target.tfunc
+    bounds = target.bounds
+
+    pdist = state.pdist
+    current_sample = state.current_sample
+    proposed_sample = state.proposed_sample
+
+    current_params = current_sample.params
+    current_log_value = current_sample.log_value
+
+    proposed_params = proposed_sample.params
+
+    if state.proposal_accepted
+        copy!(current_sample, proposed_sample)
+        state.current_nreject = 0
+        state.proposal_accepted = false
+    end
+
+    accepted = false
+    nsteps = 0
+    nsamples = 0
+    while nsamples < max_nsamples && nsteps < max_nsteps
+        # TODO: mofify/tag counter(s) for counter-based rng
+        proposal_rand!(rng, pdist, proposed_params, current_params)
+        apply_bounds!(proposed_params, bounds)
+
+        proposed_log_value = target_logval(tfunc, params_next, exec_context)
+
+        log_tp_fwd = proposal_logpdf(, params_next, current_params)
+
+        # TODO: mofify/tag counter(s) for counter-based rng
+        accepted = rand(rng) < exp(log_value_next - log_value_last)
+
+        nsteps += 1
+        state.nsteps += 1
+        if accepted
+            state.proposal_accepted = true
+            state.naccept += 1
+
+            sample.weight = state.current_nreject + 1
+
+            nsamples += 1
+            chain.nsamples += 1
+        else
+            state.current_nreject += 1
+            ...
+        end
+
+        if accepted || (granularity > 2)
+            callback(chain)
+        end
+    end
+end
+
+
+
+current_sample.weight += 1
+
+
+function mcmc_update!(state::MHState, new_params::Vector{<:Real}, new_log_value::Real, log_tpr::Real)::Bool
+    rng = state.rng
+    isnan(log_value) && error("Encountered NaN log_value")
+    accepted = rand(rng) < exp(log_value - state.log_value)
+    if accepted
+        copy!(state.params, params)
+        state.log_value = log_value
+        state.nsamples += 1
+        state.multiplicity = 1
+    else
+        state.multiplicity += 1
+    end
+    accepted
+end
+
+
+
+
+
+
+
+
+function mh_propose_eval!(
     params_new::AbstractVector{P},
     target::AbstractTargetFunction,
-    pdist::ProposalDist,
+    pdist::AbstractProposalDist,
     params_old::AbstractVector{P},
     bounds::AbstractParamBounds,
     executor::SerialExecutor
@@ -30,71 +150,11 @@ mutable struct MHChainState{
     nsamples::Int64
     multiplicity::Int
 
-    function MHChainState{P,T,S,R}(
-        subject::S,
-        rng::R,
-        params::Vector{P},
-        log_value::T,
-        nsamples::Integer = 0,
-        multiplicity::Integer = 0
-    ) where {
-        P<:Real,
-        T<:Real,
-        S<:MCMCSubject,
-        R<:AbstractRNG
-    }
-        length(params) != length(subject.bounds) && throw(DimensionMismatch("length(params) != length(bounds)"))
-        new{P,T,S,R}(
-            subject,
-            rng,
-            params,
-            log_value,
-            nsamples,
-            multiplicity
-        )
-    end
-end
-
-
-function MHChainState(
-    subject::S,
-    rng::R,
-    params::Vector{P},
-    log_value::T,
-    nsamples::Integer = 0,
-    multiplicity::Integer = 0
-) where {
-    P<:Real,
-    T<:Real,
-    S<:MCMCSubject,
-    R<:AbstractRNG
-}
-    MHChainState{P,T,S,R}(
-        subject,
-        rng,
-        params,
-        log_value,
-        nsamples,
-        multiplicity
-    )
 end
 
 
 
-function mcmc_update!(state::MHChainState, params::Vector{<:Real}, log_value::Real)::Bool
-    rng = state.rng
-    isnan(log_value) && error("Encountered NaN log_value")
-    accepted = log(rand(rng)) < log_value - state.log_value
-    if accepted
-        copy!(state.params, params)
-        state.log_value = log_value
-        state.nsamples += 1
-        state.multiplicity = 1
-    else
-        state.multiplicity += 1
-    end
-    accepted
-end
+
 
 
 function mcmc_step!(state::MHChainState, exec_context::ExecContext = ExecContext())

@@ -1,56 +1,86 @@
 # This file is a part of BAT.jl, licensed under the MIT License (MIT).
 
+
+
+
 abstract type AbstractMCMCState end
 
 
-mutable struct MCMCSubject{
-    F<:AbstractTargetFunction,
-    Q<:ProposalDist,
-    B<:AbstractParamBounds
-}
-    target::F
-    pdist::Q
-    bounds::B
-end
+abstract type MCMCAlgorithm{S:<AbstractMCMCState} end
 
-export MCMCSubject
 
-Base.length(subject::MCMCSubject) = length(subject.bounds)
+
+
+
+
+abstract type AbstractMCMCSample end
+export AbstractMCMCSample
+
 
 
 mutable struct MCMCSample{
     P<:Real,
     T<:Real,
     W<:Real
-} <: AbstractMCMCState
+} <: AbstractMCMCSample
     params::Vector{P}
     log_value::T
     weight::W
-    nsamples::Int64
 end
+
+export MCMCSample
+
 
 Base.length(sample::MCMCSample) = length(sample.params)
 
+Base.similar(sample::MCMCSample{P,T,W}) where {P,T,W} = MCMCSample{P,T,W}(similar(sample.params), 0, 0, 0)
 
-function MCMCSample(
-    P<:Real,
-    T<:Real,
-    W<:Real
-) where {
-    P<:Real,
-    T<:Real,
-    S<:MCMCSubject,
+function Base.copy!(dest::MCMCSample, src::MCMCSample) 
+    copy!(dest.params, src.params)
+    dest.log_value = src.log_value
+    dest.weight = src.weight
+    dest
+end
+
+
+
+
+
+@enum MCMChainState UNCONVERGED=0 CONVERGED=1
+export MCMChainState
+export UNCONVERGED
+export CONVERGED
+
+
+struct MCMCChainInfo{
+    id::Int,
+    cycle::Int,
+    state::Int
+end
+
+export MCMCChainInfo
+
+MCMCChainInfo() = MCMCChainInfo(0, 0, UNCONVERGED)
+
+
+
+struct MCMCChain{
+    A<:MCMCAlgorithm
+    T<:AbstractTargetSubject
+    S<:AbstractMCMCState
     R<:AbstractRNG
 }
-    MHChainState{P,T,S,R}(
-        subject,
-        rng,
-        params,
-        log_value,
-        nsamples,
-        multiplicity
-    )
+    target::T
+    state::S
+    nsamples::Int64
+    rng::R
+    info::MCMCChainInfo
 end
+
+export MCMCChain
+
+
+
 
 
 """
