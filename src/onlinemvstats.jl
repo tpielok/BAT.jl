@@ -41,7 +41,7 @@ mutable struct OnlineMvMean{T<:AbstractFloat} <: AbstractVector{T}
     C::Vector{T}
 
     OnlineMvMean{T}(m::Integer) where {T<:AbstractFloat} =
-        new{T}(m, zero(Int64), zeros(T, m), zeros(T, m))
+        new{T}(m, zero(Double{T}), zeros(T, m), zeros(T, m))
 end
 
 export OnlineMvMean
