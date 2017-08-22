@@ -64,6 +64,21 @@ MCMCChainInfo() = MCMCChainInfo(0, 0, UNCONVERGED)
 
 
 
+struct MCMCChainStats{T,W,P}{
+    mean_params::OnlineMvMean{P}
+    cov_params::OnlineMvCov{P,FrequencyWeights}
+
+    minimum_params::Vector{P}
+    maximum_params::Vector{P}
+    mode_params::Vector{P}
+
+    mode_log_tf::T
+end
+
+export MCMCChainStats
+
+
+
 struct MCMCChain{
     A<:MCMCAlgorithm
     T<:AbstractTargetSubject

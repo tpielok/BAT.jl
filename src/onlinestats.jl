@@ -56,11 +56,6 @@ OnlineMvMean(m::Integer) = OnlineMvMean{Float64}(m::Integer)
 end
 
 
-
-@inline Base.push!(omn::OnlineMvMean, data::Vector, weight::Real = one(T)) =
-    push_contiguous!(omn, data, first(linearindices(data)), weight)
-
-
 function Base.merge!(target::OnlineMvMean, others::OnlineMvMean...)
     for x in others
         target.m != x.m && throw(ArgumentError("can't merge OnlineMvMean instances with different size"))
@@ -69,7 +64,7 @@ function Base.merge!(target::OnlineMvMean, others::OnlineMvMean...)
         target.sum_w += x.sum_w
         target_S = target.S; target_C = target.C
         x_S = x.S; x_C = x.C
-        @assert eachindex(target_S) == eachindex(x.S) == eachindex(target_C) == eachindex(x.C)
+        @assert eachindex(target_S) == eachindex(x.S) == eachindex(target_C) == eachindex(x.C)  # TODO: Use exception instead of assert
         @inbounds @simd for i in eachindex(target_S)
             target_S[i], target_C[i] = kbn_add(
                 (target_S[i], target_C[i]),
@@ -80,7 +75,6 @@ function Base.merge!(target::OnlineMvMean, others::OnlineMvMean...)
     target
 end
 
-Base.merge(x::OnlineMvMean, others::OnlineMvMean...) = merge!(deepcopy(x), others...)
 
 
 
@@ -96,7 +90,7 @@ Base.merge(x::OnlineMvMean, others::OnlineMvMean...) = merge!(deepcopy(x), other
 
     dshft = Int(start) - 1
 
-    @assert idxs == indices(S, 1) == indices(C, 1)
+    @assert idxs == indices(S, 1) == indices(C, 1)  # TODO: Use exception instead of assert
     checkbounds(data, idxs + dshft)
 
     omn.sum_w += Single(weight)
@@ -185,15 +179,6 @@ end
 end
 
 
-@inline Base.push!(ocv::OnlineMvCov, data::Vector, weight::Real = one(T)) =
-    push_contiguous!(ocv, data, first(linearindices(data)), weight)
-
-
-
-# function Base.merge!(a::OnlineMvCov, b::OnlineMvCov)
-#     ...
-# end
-
 function Base.merge!(target::OnlineMvCov, others::OnlineMvCov...)
     for x in others
         target.m != x.m && throw(ArgumentError("can't merge OnlineMvCov instances with different size"))
@@ -208,8 +193,6 @@ function Base.merge!(target::OnlineMvCov, others::OnlineMvCov...)
     end
     target
 end
-
-Base.merge(x::OnlineMvCov, others::OnlineMvCov...) = merge!(deepcopy(x), others...)
 
 
 
@@ -230,7 +213,7 @@ Base.merge(x::OnlineMvCov, others::OnlineMvCov...) = merge!(deepcopy(x), others.
 
     dshft = Int(start) - 1
 
-    @assert idxs == indices(Mean_X, 1) == indices(New_Mean_X, 1) == indices(S, 1) == indices(S, 2)
+    @assert idxs == indices(Mean_X, 1) == indices(New_Mean_X, 1) == indices(S, 1) == indices(S, 2)  # TODO: Use exception instead of assert
     checkbounds(data, idxs + dshft)
 
     n += one(n)
@@ -248,7 +231,7 @@ Base.merge(x::OnlineMvCov, others::OnlineMvCov...) = merge!(deepcopy(x), others.
     @inbounds for j in idxs
         new_dx_j = data[j + dshft] - New_Mean_X[j]
         j_offs = sub2ind(S, 0, j)
-        @assert sub2ind(S, last(idxs), j) == last(idxs) + j_offs
+        @assert sub2ind(S, last(idxs), j) == last(idxs) + j_offs  # TODO: Use exception instead of assert
         @simd for i in idxs
             dx_i = data[i + dshft] - Mean_X[i]
             S[i + j_offs] = muladd(dx_i, new_dx_j, S[i + j_offs])
@@ -268,14 +251,68 @@ end
 
 
 
-const OnlineStatistic = Union{OnlineMvMean, OnlineMvCov}
+mutable struct BasicMvStatistics{T,W}
+    mean::OnlineMvMean{T}
+    cov::OnlineMvCov{T,W}
+    maximum:Vector{T}
+    minimum:Vector{T}
+end
+
+export BasicMvStatistics
 
 
-function Base.append!(target::OnlineStatistic, data::Matrix, vardim::Integer = 1)
+function Base.merge!(target::BasicMvStatistics, others::BasicMvStatistics...)
+    for x in others
+        merge!(target.mean, x.mean)
+        merge!(target.cov, x.cov)
+        target.maximum .= maximum(target.maximum, x.maximum)
+        target.minimum .= minimum(target.minimum, x.minimum)
+    end
+    target
+end
+
+
+function push_contiguous!{T,W}(
+    stats::BasicMvStatistics{T,W}, data::Array,
+    start::Integer,
+    weight::Real = one(T)
+)
+    push_contiguous!(stats.mean, data, start, weight)
+    push_contiguous!(stats.cov, data, start, weight)
+
+    max_v = stats.maximum
+    min_v = stats.minimum
+
+    m = stats.mean.m
+    idxs = Base.OneTo(m)
+    dshft = Int(start) - 1
+
+    @assert idxs == indices(max_v, 1) == indices(min_v, 1)  # TODO: Use exception instead of assert
+    checkbounds(data, idxs + dshft)
+
+    @inbounds @simd for i in idxs
+        x = data[i + dshft]
+        max_v[i] = max(max_v[i], x)
+        min_v[i] = min(min_v[i], x)
+    end
+
+    stats
+end
+
+
+
+const OnlineMvStatistic = Union{OnlineMvMean, OnlineMvCov, BasicMvStatistics}
+
+
+@inline Base.push!(target::OnlineMvStatistic, data::Vector, weight::Real = one(T)) =
+    push_contiguous!(target, data, first(linearindices(data)), weight)
+
+
+function Base.append!(target::OnlineMvStatistic, data::Matrix, vardim::Integer = 1)
     if (vardim == 1)
         throw(ArgumentError("vardim == $vardim not supported (yet)"))
     elseif (vardim == 2)
-        @assert target.m == size(data, 1)  # TODO: Replace by exception
+        @assert target.m == size(data, 1)  # TODO: Use exception instead of assert
         @inbounds for i in indices(data, 2)
             push_contiguous!(target, data, sub2ind(data, 1, i))
         end
@@ -287,12 +324,12 @@ function Base.append!(target::OnlineStatistic, data::Matrix, vardim::Integer = 1
 end
 
 
-function Base.append!(target::OnlineStatistic, data::Matrix, weights::Vector, vardim::Integer = 1)
+function Base.append!(target::OnlineMvStatistic, data::Matrix, weights::Vector, vardim::Integer = 1)
     if (vardim == 1)
         throw(ArgumentError("vardim == $vardim not supported (yet)"))
     elseif (vardim == 2)
-        @assert target.m == size(data, 1)  # TODO: Replace by exception
-        @assert indices(data, 2) == indices(weights, 1)  # TODO: Replace by exception
+        @assert target.m == size(data, 1)  # TODO: Use exception instead of assert
+        @assert indices(data, 2) == indices(weights, 1)  # TODO: Use exception instead of assert
         @inbounds for i in indices(data, 2)
             push_contiguous!(target, data, sub2ind(data, 1, i), weights[i])
         end
@@ -302,3 +339,6 @@ function Base.append!(target::OnlineStatistic, data::Matrix, weights::Vector, va
 
     target
 end
+
+
+Base.merge(x::S, others::S...) where {S <: OnlineMvStatistic} = merge!(deepcopy(x), others...)

@@ -27,6 +27,11 @@ export MetropolisHastings
 acceptance_ratio(state::MHState) = chain.state.naccept / state.nsteps
 
 
+mcmc_compatible(::MetropolisHastings, pdist::AbstractProposalDist, bounds::UnboundedParams) = true
+
+mcmc_compatible(::MetropolisHastings, pdist::AbstractProposalDist, bounds::HyperCubeBounds) =
+    issymmetric(pdist) || all(x -> x == hard_bounds, bounds.bt)
+
 
 
 mcmc_iterate(
@@ -38,6 +43,8 @@ mcmc_iterate(
     max_time::Float64 = Inf
     granularity::Int = 1
 )
+    algorithm = chain.algorithm
+
     start_time = time()
     nsteps = 0
     nsamples = 0
@@ -53,6 +60,12 @@ mcmc_iterate(
     current_sample = state.current_sample
     proposed_sample = state.proposed_sample
 
+    T = typeof(current_sample.log_value)
+
+    if !mcmc_compatible(algorithm, pdist, bounds)
+        error("Implementation of algorithm $algorithm does not support current parameter bounds with current proposal distribution")
+    end
+
     current_params = current_sample.params
     proposed_params = proposed_sample.params
 
@@ -64,10 +77,9 @@ mcmc_iterate(
         end
 
         current_log_value = current_sample.log_value
-        T = typeof(current_log_value)
 
         # Propose new parameters:
-        # TODO: mofify/tag counter(s) for counter-based rng
+        # TODO: First mofify/tag counter(s) for counter-based RNG
         proposal_rand!(rng, pdist, proposed_params, current_params)
         apply_bounds!(proposed_params, bounds)
 
@@ -88,22 +100,20 @@ mcmc_iterate(
         end
 
         # Metropolis-Hastings accept/reject:
-        # TODO: mofify/tag counter(s) for counter-based rng
+        # TODO: First mofify/tag counter(s) for counter-based RNG before
         accepted = rand(rng) < exp(log_value_next - log_value_last - log_tpr)
 
         nsteps += 1
         state.nsteps += 1
+
         if accepted
+            sample.weight = state.current_nreject + 1
             state.proposal_accepted = true
             state.naccept += 1
-
-            sample.weight = state.current_nreject + 1
-
             nsamples += 1
             chain.nsamples += 1
         else
             state.current_nreject += 1
-            ...
         end
 
         if accepted || (granularity > 2)
@@ -111,109 +121,6 @@ mcmc_iterate(
         end
     end
 end
-
-
-
-current_sample.weight += 1
-
-
-function mcmc_update!(state::MHState, new_params::Vector{<:Real}, new_log_value::Real, log_tpr::Real)::Bool
-    rng = state.rng
-    isnan(log_value) && error("Encountered NaN log_value")
-    accepted = rand(rng) < exp(log_value - state.log_value)
-    if accepted
-        copy!(state.params, params)
-        state.log_value = log_value
-        state.nsamples += 1
-        state.multiplicity = 1
-    else
-        state.multiplicity += 1
-    end
-    accepted
-end
-
-
-
-
-
-
-
-
-function mh_propose_eval!(
-    params_new::AbstractVector{P},
-    target::AbstractTargetFunction,
-    pdist::AbstractProposalDist,
-    params_old::AbstractVector{P},
-    bounds::AbstractParamBounds,
-    executor::SerialExecutor
-)::Real where {P<:Real}
-    proposal_rand!(executor.rng, pdist, params_new, params_old)
-    apply_bounds!(params_new, bounds)
-    target_logval(target, params_new, executor.ec)
-end
-
-
-
-mutable struct MHChainState{
-    P<:Real,
-    T<:Real,
-    S<:MCMCSubject,
-    R<:AbstractRNG
-} <: AbstractMCMCState
-    subject::S
-    rng::R
-    params::Vector{P}
-    log_value::T
-    nsamples::Int64
-    multiplicity::Int
-
-end
-
-
-
-
-
-
-function mcmc_step!(state::MHChainState, exec_context::ExecContext = ExecContext())
-    rng = state.rng
-    exec_context = state.exec_context
-    params_old = state.params
-    params_new = similar(params_old) # TODO: Avoid memory allocation
-
-    # TODO: mofify/tag counter(s) for counter-based rng
-    proposal_rand!(rng, state.pdist, params_new, params_old)
-    apply_bounds!(params_new, state.bounds)
-    log_value_new = target_logval(state.target, params_new, exec_context)
-
-    # TODO: mofify/tag counter(s) for counter-based rng
-    mcmc_update!(state, params_new, log_value_new, rng)
-
-    state
-end
-
-
-#=
-function mcmc_step(states::AbstractVector{MHChainState{P, R}}, exec_context::ExecContext = ExecContext()) where {P,R}
-    rng = state.rng
-    exec_context = state.exec_context
-
-    # TODO: Avoid memory allocation:
-    params_old = hcat((s.params for s in states)...)
-    params_new = similar(params_old)
-    log_values_new = Vector{R}(length(states))
-
-    proposal_rand!(rng, state.pdist, params_new, params_old)
-    apply_bounds!(params_new, state.bounds)
-    log_values_new = target_logval!(log_values_new, state.target, params_new, exec_context)
-
-    for i in eachindex(log_values_new)
-        # TODO: Run multithreaded if length(states) is large?
-        p_new = view(params_new, :, i) # TODO: Avoid memory allocation
-        push!(states[i], p_new, log_values_new[i], rng)
-    end
-    states
-end
-=#
 
 
 
