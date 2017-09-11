@@ -28,6 +28,17 @@ export reflective_bounds
 
 @inline float_iseven(n::T) where {T<:AbstractFloat} = (n - T(2) * floor((n + T(0.5)) * T(0.5))) < T(0.5)
 
+"""
+    apply_bounds(x::X, lo::L, hi::H, boundary_type::BoundsType) where {X<:Real,L<:Real,H<:Real}
+
+Compute position `x` after applying bounds [`lo` `hi`]. 
+Possible bound types:
+
+    * `hard_bounds`
+    * `cyclic_bounds`
+    * `reflective_bounds`
+"""
+
 @inline function apply_bounds(x::X, lo::L, hi::H, boundary_type::BoundsType) where {X<:Real,L<:Real,H<:Real}
     T = float(promote_type(X, L, H))
 
@@ -55,6 +66,8 @@ export reflective_bounds
     )
 end
 
+
+"Instead of `lo`, `hi` an `interval`-variable can be used"
 @inline apply_bounds(x::Real, interval::ClosedInterval, boundary_type::BoundsType) =
     apply_bounds(x, minimum(interval), maximum(interval), boundary_type)
 
