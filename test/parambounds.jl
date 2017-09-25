@@ -35,4 +35,7 @@ using IntervalSets
 
         @test BAT.apply_bounds(+5.3, ClosedInterval(-1, 2), reflective_bounds) ≈ -0.7
     end
+    @testset "BAT.UnboundedParams" begin
+        @test typeof(@inferred BAT.UnboundedParams{Float64}(3)) == UnboundedParams{Float64}
+    end
 end
