@@ -44,6 +44,11 @@ MCMCInitStrategy(tuner_config::AbstractMCMCTunerConfig) =
     MCMCInitStrategy()
 
 
+gen_tuners(ids::Range{<:Integer},
+           chainspec::MCMCSpec,
+           exec_context::ExecContext,
+           tuner_config::AbstractMCMCTunerConfig) =
+               [tuner_config(chainspec(id, exec_context), init_proposal = true) for id in ids]
 
 function mcmc_init(
     chainspec::MCMCSpec,
@@ -54,13 +59,11 @@ function mcmc_init(
     init_strategy::MCMCInitStrategy = MCMCInitStrategy(tuner_config);
     ll::LogLevel = LOG_INFO
 )
-    @log_msg ll "Trying to generate $nchains viable MCMC chain(s)."
+    @log_msg LOG_INFO "Trying to generate $nchains viable MCMC chain(s)."
 
     min_nviable = minimum(init_strategy.ninit_tries_per_chain) * nchains
     max_ncandidates = maximum(init_strategy.ninit_tries_per_chain) * nchains
 
-    gen_tuners(ids::Range{<:Integer}) =
-        [tuner_config(chainspec(id, exec_context), init_proposal = true) for id in ids]
 
     ncandidates = zero(Int64)
 
@@ -68,11 +71,11 @@ function mcmc_init(
     cycle = one(Int)
     while length(tuners) < min_nviable && ncandidates < max_ncandidates
         n = min(min_nviable, max_ncandidates - ncandidates)
-        @log_msg ll+1 "Generating $n $(cycle > 1 ? "additional " : "")MCMC chain(s)."
-        new_tuners = gen_tuners(ncandidates + (one(Int64):n))
+        @log_msg LOG_INFO+1 "Generating $n $(cycle > 1 ? "additional " : "")MCMC chain(s)."
+        new_tuners = gen_tuners(ncandidates + (one(Int64):n), chainspec, exec_context, tuner_config)
         ncandidates += n
 
-        @log_msg ll+1 "Testing $(length(new_tuners)) MCMC chain(s)."
+        @log_msg LOG_INFO+1 "Testing $(length(new_tuners)) MCMC chain(s)."
 
         chains = map(x -> x.chain, new_tuners)
 
@@ -81,11 +84,11 @@ function mcmc_init(
             max_nsamples = max(5, div(init_strategy.max_nsamples_pretune, 5)),
             max_nsteps =  max(50, div(init_strategy.max_nsteps_pretune, 5)),
             max_time = init_strategy.max_time_pretune / 5,
-            ll = ll+2
+            LOG_INFO = LOG_INFO+2
         )
 
         filter!(isviable, new_tuners)
-        @log_msg ll+1 "Found $(length(new_tuners)) viable MCMC chain(s)."
+        @log_msg LOG_INFO+1 "Found $(length(new_tuners)) viable MCMC chain(s)."
 
         if !isempty(new_tuners)
             run_tuning_iterations!(
@@ -93,13 +96,13 @@ function mcmc_init(
                 max_nsamples = init_strategy.max_nsamples_pretune,
                 max_nsteps = init_strategy.max_nsteps_pretune,
                 max_time = init_strategy.max_time_pretune,
-                ll = ll+2
+                LOG_INFO = LOG_INFO+2
             )
 
             nsamples_thresh = floor(Int, 0.8 * median([nsamples(t.chain.state) for t in new_tuners]))
 
             filter!(t -> nsamples(t.chain.state) >= nsamples_thresh, new_tuners)
-            @log_msg ll+1 "Found $(length(new_tuners)) MCMC chain(s) with at least $(nsamples_thresh) samples."
+            @log_msg LOG_INFO+1 "Found $(length(new_tuners)) MCMC chain(s) with at least $(nsamples_thresh) samples."
 
             append!(tuners, new_tuners)
         end
