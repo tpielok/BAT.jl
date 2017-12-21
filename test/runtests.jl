@@ -2,12 +2,12 @@
 
 import Compat.Test
 Test.@testset "Package BAT" begin
-    include("mcmc_rand.jl")
+    # include("mcmc_rand.jl")
     include("rng.jl")
-    include("density.jl")
-    include("distributions.jl")
-    include("spatialvolume.jl")
-    include("parambounds.jl")
-    include("onlinemvstats.jl")
-    include("onlineuvstats.jl")
+    # include("density.jl")
+    # include("distributions.jl")
+    # include("spatialvolume.jl")
+    # include("parambounds.jl")
+    # include("onlinemvstats.jl")
+    # include("onlineuvstats.jl")
 end
