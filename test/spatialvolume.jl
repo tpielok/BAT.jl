@@ -9,6 +9,7 @@ using IntervalSets
     lo = [-1., -0.1]
     hi = [2.,1]
     hyperRectVolume = BAT.HyperRectVolume(lo, hi)
+
     @testset "BAT.SpatialVolume" begin
         @test eltype(@inferred BAT.HyperRectVolume([-1., 0.5], [2.,1])) == Float64
         @test size(rand(MersenneTwister(7002), hyperRectVolume)) == (2,)
@@ -31,5 +32,13 @@ using IntervalSets
         res = rand!(MersenneTwister(7002), hyperRectVolume, zeros(2,3))
         @test typeof(res) <: AbstractArray{Float64, 2}
         @test size(res) == (2, 3)
+    end
+    @testset "fromuhc" begin
+        @test inv(fromuhc!) == BAT.inv_fromuhc!
+        @test inv(BAT.inv_fromuhc!) == fromuhc!
+        @test inv(fromuhc) == BAT.inv_fromuhc
+        @test inv(BAT.inv_fromuhc) == fromuhc
+
+
     end
 end
