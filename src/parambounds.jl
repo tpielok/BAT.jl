@@ -59,7 +59,7 @@ function apply_bounds! end
 
 
 doc"""
-    apply_bounds(x::<:Real, lo::<:Real, hi::<:Real, boundary_type::BoundsType) 
+    apply_bounds(x::<:Real, lo::<:Real, hi::<:Real, boundary_type::BoundsType)
 
 Apply lower/upper bound `lo`/`hi` to value `x`. `boundary_type` may be
 `hard_bounds`, `cyclic_bounds` or `reflective_bounds`.
@@ -134,7 +134,7 @@ Base.in(params::AbstractMatrix, bounds::ParamVolumeBounds, j::Integer) = in(para
 
 # Base.rand(rng::AbstractRNG, bounds::ParamVolumeBounds, n::Integer) =
 #     rand!(rng, bounds, Matrix{float(eltype(bounds))}(nparams(bounds), n))
-# 
+#
 # Base.rand!(rng::AbstractRNG, bounds::ParamVolumeBounds, x::StridedVecOrMat{<:Real}) = rand!(rng, spatialvolume(bounds), x)
 
 
@@ -157,6 +157,7 @@ struct HyperRectBounds{T<:Real} <: ParamVolumeBounds{T, HyperRectVolume{T}}
 
     function HyperRectBounds{T}(vol::HyperRectVolume{T}, bt::Vector{BoundsType}) where {T<:Real}
         indices(bt) != (1:ndims(vol),) && throw(ArgumentError("bt must have indices (1:ndims(vol),)"))
+        isempty(vol) && throw(ArgumentError("vol must not be empty"))
         new{T}(vol, bt)
     end
 end

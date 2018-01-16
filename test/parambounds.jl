@@ -62,7 +62,7 @@ using IntervalSets
     @testset "BAT.HyperRectBounds" begin
         @test typeof(@inferred BAT.HyperRectBounds([-1., 0.5], [2.,1], BAT.hard_bounds)) <: ParamVolumeBounds{Float64, HyperRectVolume{Float64}}
         @test_throws ArgumentError BAT.HyperRectBounds([-1.], [2.,1], [hard_bounds, reflective_bounds])
-        #@test_throws ArgumentError BAT.HyperRectBounds([-1., 2.], [2.,1], [hard_bounds, reflective_bounds])
+        @test_throws ArgumentError BAT.HyperRectBounds([-1., 2.], [2.,1], [hard_bounds, reflective_bounds])
 
         hyperRectBounds = BAT.HyperRectBounds([-1., -1.], [0.5,1], [hard_bounds, hard_bounds])
         @test nparams(hyperRectBounds) == 2
