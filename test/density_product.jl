@@ -56,7 +56,18 @@ using Distributions
         @test BAT.unsafe_density_logval(dp, [0.0]) ≈
             [-2.656024246969]
         @test_throws ArgumentError BAT.unsafe_density_logval(BAT.DensityProduct(Tuple([]), pb),
-            [0.0])
+                                                             [0.0])
+        #res = zeros(1,2)
+        # res = zeros(2)
+        # BAT.unsafe_density_logval!(res, dp, [0.0 0.7])
+
+        # print(res) 
+        
+        # print(BAT.unsafe_density_logval(gd1, [0.0]) +
+        #                                 BAT.unsafe_density_logval(gd2, [0.0]))
+        # print(BAT.unsafe_density_logval(gd1, [0.7]) +
+        #                                 BAT.unsafe_density_logval(gd2, [0.7]))     
+        
     end
 
     @testset "ExecCapabilities" begin
