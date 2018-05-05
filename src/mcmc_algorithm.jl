@@ -246,7 +246,7 @@ end
 
 
 function (spec::MCMCSpec)(
-    ids::AbstractVector,
+    ids::AbstractVector{Int64},
     exec_context::ExecContext = ExecContext()
 )
     spec.(ids, exec_context)

@@ -15,7 +15,7 @@ using Distributions, PDMats, StatsBase
         density = @inferred MvDistDensity(mv_dist)
         bounds = @inferred HyperRectBounds([-5, -8], [5, 8], reflective_bounds)
         nsamples_per_chain = 2000
-        nchains = 4
+        nchains = Int64(4)
 
         algorithmMW = @inferred MetropolisHastings()
         @test BAT.mcmc_compatible(algorithmMW, GenericProposalDist(mv_dist), NoParamBounds(2))
@@ -89,5 +89,6 @@ using Distributions, PDMats, StatsBase
 
         @test isapprox(mean_samples, mvec; atol = 0.2)
         @test isapprox(cov_samples, cmat; atol = 0.5)
+        
     end
 end

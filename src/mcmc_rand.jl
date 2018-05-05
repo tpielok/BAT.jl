@@ -8,7 +8,7 @@ function Base.rand!(
     result::Tuple{DensitySampleVector, MCMCSampleIDVector, MCMCBasicStats},
     chainspec::MCMCSpec,
     nsamples::Integer,
-    nchains::Integer,
+    nchains::Int64,
     tuner_config::AbstractMCMCTunerConfig,
     convergence_test::MCMCConvergenceTest,
     init_strategy::MCMCInitStrategy,
@@ -98,7 +98,7 @@ end
 function Base.rand(
     chainspec::MCMCSpec,
     nsamples::Integer,
-    nchains::Integer,
+    nchains::Int64,
     exec_context::ExecContext = ExecContext();
     tuner_config::AbstractMCMCTunerConfig = AbstractMCMCTunerConfig(chainspec.algorithm),
     convergence_test::MCMCConvergenceTest = GRConvergence(),

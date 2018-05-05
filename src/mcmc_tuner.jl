@@ -31,7 +31,7 @@ export MCMCInitStrategy
 MCMCInitStrategy(tuner_config::AbstractMCMCTunerConfig) =
     MCMCInitStrategy()
 
-gen_tuners(ids::Range{<:Integer},
+gen_tuners(ids::Range{<:Int64},
     chainspec::MCMCSpec,
     exec_context::ExecContext,
     tuner_config::AbstractMCMCTunerConfig,
@@ -39,7 +39,7 @@ gen_tuners(ids::Range{<:Integer},
 
 function mcmc_init(
     chainspec::MCMCSpec,
-    nchains::Int,
+    nchains::Int64,
     exec_context::ExecContext = ExecContext(),
     tuner_config::AbstractMCMCTunerConfig = AbstractMCMCTunerConfig(chainspec.algorithm),
     convergence_test::MCMCConvergenceTest = GRConvergence(),
@@ -65,6 +65,7 @@ function mcmc_init(
 
         chains = map(x -> x.chain, new_tuners)
 
+        
         run_tuning_iterations!(
             (), new_tuners, exec_context;
             max_nsamples = max(5, div(init_strategy.max_nsamples_pretune, 5)),
@@ -72,7 +73,6 @@ function mcmc_init(
             max_time = init_strategy.max_time_pretune / 5,
             ll = ll+2
         )
-
         filter!(isviable, new_tuners)
         @log_msg ll+1 "Found $(length(new_tuners)) viable MCMC chain(s)."
 
@@ -247,7 +247,7 @@ isviable(tuner::NoOpTuner) = true
 
 function mcmc_init(
     chainspec::MCMCSpec,
-    nchains::Int,
+    nchains::Int64,
     exec_context::ExecContext,
     tuner_config::NoOpTunerConfig,
     convergence_test::MCMCConvergenceTest,
@@ -255,8 +255,7 @@ function mcmc_init(
     ll::LogLevel = LOG_INFO
 )
     @log_msg ll "NoOpTuner generating $nchains MCMC chain(s)."
-
-    [tuner_config(chainspec(id, exec_context), init_proposal = true) for id in one(Int):nchains]
+    [tuner_config(chainspec(id, exec_context), init_proposal = true) for id in one(Int64):nchains]
 end
 
 
