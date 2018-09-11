@@ -1,13 +1,12 @@
-julia 0.6
+julia 0.7
 Clustering
 Colors
-Compat 0.54
 Distributions
-DoubleDouble
+DoubleFloats
 ElasticArrays
 FunctionWrappers
 IntervalSets
-MultiThreadingTools
+ParallelProcessingTools
 Parameters
 PDMats
 RandomNumbers
