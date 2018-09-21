@@ -12,11 +12,11 @@ import Base.Math.JuliaLibm
 using Clustering
 using Colors
 using Distributions
-using DoubleDouble
+using DoubleFloats
 using ElasticArrays
 using FunctionWrappers
 using IntervalSets
-using MultiThreadingTools
+using ParallelProcessingTools
 using Parameters
 using PDMats
 using RecipesBase

@@ -120,7 +120,7 @@ end
 
 function log_volume(vol::HyperRectVolume{T}) where {T}
     R = promote_type(Float64, T)
-    S = promote_type(Double{Float64}, T)
+    S = promote_type(DoubleFloat{Float64}, T)
     s = zero(S)
     hi = vol.hi
     lo = vol.lo

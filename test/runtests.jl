@@ -1,6 +1,6 @@
 # This file is a part of BAT.jl, licensed under the MIT License (MIT).
+using Test
 
-import Compat.Test
 Test.@testset "Package BAT" begin
     include("mcmc_rand.jl")
     include("data_vector.jl")

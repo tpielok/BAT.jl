@@ -34,31 +34,31 @@ function Base.rand!(rng::AbstractRNG, s::test_batsampler, x::AbstractArray{T, 1}
 
     @testset "rand" begin
         bsguv = BATGammaMTSampler(Gamma(4f0, 2f0))
-        @test size(rand(bsguv, 5)) == (5,)
-        @test typeof(rand(bsguv, 5)) == Vector{Float32}
-        @test typeof(rand(bsguv)) == Float32
+        @test size(BAT.rand(bsguv, 5)) == (5,)
+        @test typeof(BAT.rand(bsguv, 5)) == Vector{Float32}
+        @test typeof(BAT.rand(bsguv)) == Float32
 
-        res = rand!(bsguv, zeros(3))
+        res = BAT.rand!(bsguv, zeros(3))
         @test size(res) == (3,)
         @test typeof(res) == Array{Float64, 1}
-        res = rand!(bsguv, zeros(3,4))
+        res = BAT.rand!(bsguv, zeros(3,4))
         @test size(res) == (3,4,)
         @test typeof(res) == Array{Float64, 2}
 
-        @test rand!(test_batsampler{Univariate}(), 1) == 0.5
+        @test BAT.rand!(test_batsampler{Univariate}(), 1) == 0.5
         x = zeros(2,3)
-        rand!(test_batsampler{Multivariate}(), x)
+        BAT.rand!(test_batsampler{Multivariate}(), x)
         @test x == ones(2,3)
 
-        res = rand(Base.GLOBAL_RNG, bsguv, Dims((2,3)))
+        res = BAT.rand(Base.GLOBAL_RNG, bsguv, Dims((2,3)))
         @test typeof(res) == Array{Float32,2}
         @test size(res) == (2,3)
 
-        bstmv = BATMvTDistSampler(MvTDist(1.5, PDMat(diagm(ones(3)))))
-        res = rand(bstmv)
+        bstmv = BAT.BATMvTDistSampler(MvTDist(1.5, PDMat(diagm(ones(3)))))
+        res = BAT.rand(bstmv)
         @test typeof(res) == Array{Float64, 1}
         @test size(res) == (3,)
-        res = rand(bstmv, Int32(2))
+        res = BAT.rand(bstmv, 2)
         @test typeof(res) == Array{Float64, 2}
         @test size(res) == (3, 2)
     end
@@ -118,7 +118,7 @@ function Base.rand!(rng::AbstractRNG, s::test_batsampler, x::AbstractArray{T, 1}
         tmv = MvTDist(3, tmean, PDMat(eye(3)))
 
         tmv = BAT.set_cov!(tmv, cmat)
-        @test full(BAT.get_cov(tmv)) ≈ cmat
+        @test Matrix(BAT.get_cov(tmv)) ≈ cmat
 
         bstmv = BATMvTDistSampler(tmv)
 

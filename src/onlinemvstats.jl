@@ -34,12 +34,12 @@ Multi-variate mean implemented via Kahan-Babuška-Neumaier summation.
 """
 mutable struct OnlineMvMean{T<:AbstractFloat} <: AbstractVector{T}
     m::Int
-    sum_w::Double{T}
+    sum_w::DoubleFloat{T}
     S::Vector{T}
     C::Vector{T}
 
     OnlineMvMean{T}(m::Integer) where {T<:AbstractFloat} =
-        new{T}(m, zero(Double{T}), zeros(T, m), zeros(T, m))
+        new{T}(m, zero(DoubleFloat{T}), zeros(T, m), zeros(T, m))
 end
 
 export OnlineMvMean
@@ -50,7 +50,7 @@ OnlineMvMean(m::Integer) = OnlineMvMean{Float64}(m::Integer)
 @inline Base.size(omn::OnlineMvMean) = size(omn.S)
 
 @propagate_inbounds function Base.getindex(omn::OnlineMvMean{T}, idxs::Integer...) where {T}
-    T((Single(omn.S[idxs...]) + Single(omn.C[idxs...])) / omn.sum_w)
+    T((DoubleFloat{T}(omn.S[idxs...]) + DoubleFloat{T}(omn.C[idxs...])) / omn.sum_w)
 end
 
 
@@ -77,7 +77,7 @@ end
     omn::OnlineMvMean{T}, data::Array,
     start::Integer, weight::Real = one(T)
 ) where {T}
-    # Workaround for lack of promotion between, e.g., Float32 and Double{Float64}
+    # Workaround for lack of promotion between, e.g., Float32 and DoubleFloat{Float64}
     weight_conv = T(weight)
 
     m = omn.m
@@ -116,15 +116,15 @@ correction method.
 mutable struct OnlineMvCov{T<:AbstractFloat,W} <: AbstractMatrix{T}
     m::Int
     n::Int64
-    sum_w::Double{T}
-    sum_w2::Double{T}
+    sum_w::DoubleFloat{T}
+    sum_w2::DoubleFloat{T}
     Mean_X::Vector{T}
     New_Mean_X::Vector{T}
     S::Matrix{T}
 
     OnlineMvCov{T,W}(m::Integer) where {T<:AbstractFloat,W} =
         new{T,W}(
-            m, zero(Int64), zero(Double{T}), zero(Double{T}),
+            m, zero(Int64), zero(DoubleFloat{T}), zero(DoubleFloat{T}),
             zeros(T, m), zeros(T, m), zeros(T, m, m)
         )
 end
@@ -219,7 +219,7 @@ end
         return ocv
     end
 
-    # Workaround for lack of promotion between, e.g., Float32 and Double{Float64}
+    # Workaround for lack of promotion between, e.g., Float32 and DoubleFloat{Float64}
     weight_conv = T(weight)
 
     m = ocv.m
@@ -248,11 +248,12 @@ end
         mean_X = Mean_X[i]
         New_Mean_X[i] = muladd(x - mean_X, weight_over_sum_w, mean_X)
     end
-
+    
     @inbounds for j in idxs
         new_dx_j = data[j + dshft] - New_Mean_X[j]
-        j_offs = sub2ind(S, 0, j)
-        @assert sub2ind(S, last(idxs), j) == last(idxs) + j_offs  # TODO: Use exception instead of assert
+
+        j_offs = sub2ind(S, last(idxs), j) - last(idxs)
+        #@assert sub2ind(S, last(idxs), j) == last(idxs) + j_offs  # TODO: Use exception instead of assert
         @simd for i in idxs
             dx_i = data[i + dshft] - Mean_X[i]
             S[i + j_offs] = muladd(dx_i, weight_conv * new_dx_j, S[i + j_offs])

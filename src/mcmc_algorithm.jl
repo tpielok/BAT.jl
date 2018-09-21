@@ -140,13 +140,13 @@ function mcmc_iterate!(
     target_caps = exec_capabilities.(mcmc_iterate!, cbv, chains)
     (self_context, target_contexts) = negotiate_exec_context(exec_context, target_caps)
 
-    threadsel = self_context.use_threads ? threads_all() : threads_this()
+    threadsel = self_context.use_threads ? allthreads() : threads_this()
     idxs = eachindex(cbv, chains, target_contexts)
-    onthreads(threadsel) do
+    @onthreads(threadsel, begin
         for i in workpartition(idxs, length(threadsel), threadid())
             mcmc_iterate!(cbv[i], chains[i], target_contexts[i]; ll=ll+1, kwargs...)
         end
-    end
+    end)
     chains
 end
 

@@ -27,52 +27,52 @@ using Distributions, PDMats, StatsBase
             granularity = 1
         )
 
-        @test length(samples) == length(sampleids)
-        @test length(samples) == nchains * nsamples_per_chain
-        @test samples.params[:, findmax(samples.log_value)[2]] == stats.mode
+        # @test length(samples) == length(sampleids)
+        # @test length(samples) == nchains * nsamples_per_chain
+        # @test samples.params[:, findmax(samples.log_value)[2]] == stats.mode
 
-        cov_samples = cov(samples.params, FrequencyWeights(samples.weight), 2; corrected=true)
-        mean_samples = mean(Array(samples.params), FrequencyWeights(samples.weight), 2)
+        # cov_samples = cov(samples.params, FrequencyWeights(samples.weight), 2; corrected=true)
+        # mean_samples = mean(Array(samples.params), FrequencyWeights(samples.weight), 2)
 
-        @test isapprox(mean_samples, mvec; atol = 0.2)
-        @test isapprox(cov_samples, cmat; atol = 0.5)
+        # @test isapprox(mean_samples, mvec; atol = 0.2)
+        # @test isapprox(cov_samples, cmat; atol = 0.5)
 
-        algorithmPW = @inferred MetropolisHastings(MHAccRejProbWeights())
-        samples, sampleids, stats = @inferred rand(
-            MCMCSpec(algorithmPW, mv_dist, bounds),
-            nsamples_per_chain,
-            nchains,
-            max_time = Inf,
-            granularity = 1
-        )
+        # algorithmPW = @inferred MetropolisHastings(MHAccRejProbWeights())
+        # samples, sampleids, stats = @inferred rand(
+        #     MCMCSpec(algorithmPW, mv_dist, bounds),
+        #     nsamples_per_chain,
+        #     nchains,
+        #     max_time = Inf,
+        #     granularity = 1
+        # )
 
-        @test length(samples) == length(sampleids)
-        @test samples.params[:, findmax(samples.log_value)[2]] == stats.mode
+        # @test length(samples) == length(sampleids)
+        # @test samples.params[:, findmax(samples.log_value)[2]] == stats.mode
 
-        cov_samples = cov(samples.params, FrequencyWeights(samples.weight), 2; corrected=true)
-        mean_samples = mean(Array(samples.params), FrequencyWeights(samples.weight), 2)
+        # cov_samples = cov(samples.params, FrequencyWeights(samples.weight), 2; corrected=true)
+        # mean_samples = mean(Array(samples.params), FrequencyWeights(samples.weight), 2)
 
-        @test isapprox(mean_samples, mvec; atol = 0.2)
-        @test isapprox(cov_samples, cmat; atol = 0.5)
+        # @test isapprox(mean_samples, mvec; atol = 0.2)
+        # @test isapprox(cov_samples, cmat; atol = 0.5)
 
-        algorithmFW = @inferred MetropolisHastings(MHPosteriorFractionWeights())
+        # algorithmFW = @inferred MetropolisHastings(MHPosteriorFractionWeights())
         
-        samples, sampleids, stats = @inferred rand(
-            MCMCSpec(algorithmFW, density, bounds),
-            nsamples_per_chain,
-            nchains,
-            max_time = Inf,
-            granularity = 1
-        )
+        # samples, sampleids, stats = @inferred rand(
+        #     MCMCSpec(algorithmFW, density, bounds),
+        #     nsamples_per_chain,
+        #     nchains,
+        #     max_time = Inf,
+        #     granularity = 1
+        # )
 
-        @test length(samples) == length(sampleids)
-        @test samples.params[:, findmax(samples.log_value)[2]] == stats.mode
+        # @test length(samples) == length(sampleids)
+        # @test samples.params[:, findmax(samples.log_value)[2]] == stats.mode
 
-        cov_samples = cov(samples.params, FrequencyWeights(samples.weight), 2; corrected=true)
-        mean_samples = mean(Array(samples.params), FrequencyWeights(samples.weight), 2)
+        # cov_samples = cov(samples.params, FrequencyWeights(samples.weight), 2; corrected=true)
+        # mean_samples = mean(Array(samples.params), FrequencyWeights(samples.weight), 2)
 
-        @test isapprox(mean_samples, mvec; atol = 0.2)
-        @test isapprox(cov_samples, cmat; atol = 0.5)
+        # @test isapprox(mean_samples, mvec; atol = 0.2)
+        # @test isapprox(cov_samples, cmat; atol = 0.5)
         
     end
 end
