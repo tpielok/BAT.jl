@@ -28,7 +28,7 @@ using Compat.Test
         ds3 = @inferred DensitySample(param1, Float64(-3.3868156), one(Float32))
         @test ds1 == ds3
 
-        copy!(ds2, ds1)
+        copyto!(ds2, ds1)
         @test ds2 == ds3
     end
 

@@ -29,8 +29,8 @@ import Base.==
     A.params == B.params && A.log_value == B.log_value && A.weight == B.weight
 
 
-function Base.copy!(dest::DensitySample, src::DensitySample) 
-    copy!(dest.params, src.params)
+function Base.copyto!(dest::DensitySample, src::DensitySample)
+    copyto!(dest.params, src.params)
     dest.log_value = src.log_value
     dest.weight = src.weight
     dest
