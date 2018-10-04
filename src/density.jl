@@ -22,13 +22,13 @@ abstract type AbstractDensity end
 export AbstractDensity
 
 
-Base.rand(rng::AbstractRNG, density::AbstractDensity, T::Type{<:AbstractFloat}) =
-    rand!(rng, density, Vector{T}(nparams(density)))
+Random.rand(rng::AbstractRNG, density::AbstractDensity, T::Type{<:AbstractFloat}) =
+    rand!(rng, density, Vector{T}(undef, nparams(density)))
 
-Base.rand(rng::AbstractRNG, density::AbstractDensity, T::Type{<:AbstractFloat}, n::Integer) =
-    rand!(rng, density, Matrix{T}(nparams(density), n))
+Random.rand(rng::AbstractRNG, density::AbstractDensity, T::Type{<:AbstractFloat}, n::Integer) =
+    rand!(rng, density, Matrix{T}(undef, nparams(density), n))
 
-Base.rand!(rng::AbstractRNG, density::AbstractDensity, x::StridedVecOrMat{<:Real}) =
+Random.rand!(rng::AbstractRNG, density::AbstractDensity, x::StridedVecOrMat{<:Real}) =
     rand!(rng, sampler(density), x)
 
 

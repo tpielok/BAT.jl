@@ -8,10 +8,10 @@ export SpatialVolume
 
 Base.eltype(b::SpatialVolume{T}) where T = T
 
-Base.rand(rng::AbstractRNG, vol::SpatialVolume) =
+Random.rand(rng::AbstractRNG, vol::SpatialVolume) =
     rand!(rng, vol, Vector{float(eltype(vol))}(ndims(vol)))
 
-Base.rand(rng::AbstractRNG, vol::SpatialVolume, n::Integer) =
+Random.rand(rng::AbstractRNG, vol::SpatialVolume, n::Integer) =
     rand!(rng, vol, Matrix{float(eltype(vol))}(ndims(vol), n))
 
 
@@ -112,7 +112,7 @@ function Base.intersect(a::HyperRectVolume, b::HyperRectVolume)
     c
 end
 
-function Base.rand!(rng::AbstractRNG, vol::HyperRectVolume, x::StridedVecOrMat{<:Real})
+function Random.rand!(rng::AbstractRNG, vol::HyperRectVolume, x::StridedVecOrMat{<:Real})
     rand!(rng, x)
     x .= x .* (vol.hi - vol.lo) .+ vol.lo # TODO: Avoid memory allocation
 end

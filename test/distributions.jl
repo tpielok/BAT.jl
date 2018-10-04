@@ -11,12 +11,12 @@ Distributions.sampler(d::test_dist) = Distributions.sampler(Distributions.Normal
 
 struct test_batsampler{T} <: BATSampler{T, Continuous} end
 
-function Base.rand!(rng::AbstractRNG, s::test_batsampler, x::Integer)
+function Random.rand!(rng::AbstractRNG, s::test_batsampler, x::Integer)
     return 0.5
 end
 Base.length(s::test_batsampler{Multivariate}) = 2
-function Base.rand!(rng::AbstractRNG, s::test_batsampler, x::AbstractArray{T, 1} where T)
-    for i in indices(x)[1]
+function Random.rand!(rng::AbstractRNG, s::test_batsampler, x::AbstractArray{T, 1} where T)
+    for i in axes(x)[1]
         x[i] = 1
     end
     return x
@@ -51,7 +51,7 @@ function Base.rand!(rng::AbstractRNG, s::test_batsampler, x::AbstractArray{T, 1}
         BAT.rand!(test_batsampler{Multivariate}(), x)
         @test x == ones(2,3)
 
-        res = BAT.rand(Base.GLOBAL_RNG, bsguv, Dims((2,3)))
+        res = BAT.rand(Random.GLOBAL_RNG, bsguv, Dims((2,3)))
         @test typeof(res) == Array{Float32,2}
         @test size(res) == (2,3)
 

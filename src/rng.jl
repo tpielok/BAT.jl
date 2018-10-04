@@ -30,7 +30,7 @@ Philox4xSeed() = Philox4xSeed{UInt64}()
 
 function (rngseed::Philox4xSeed{T})() where {T}
     rng = Philox4x{T,10}(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-    srand(rng, rngseed.seed)
+    Random.seed!(rng, rngseed.seed)
 end
 
 
@@ -48,7 +48,7 @@ Threefry4xSeed() = Threefry4xSeed{UInt64}()
 
 function (rngseed::Threefry4xSeed{T})() where {T}
     rng = Threefry4x{T,20}(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-    srand(rng, rngseed.seed)
+    Random.seed!(rng, rngseed.seed)
 end
 
 

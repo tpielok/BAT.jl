@@ -4,7 +4,7 @@
 # TODO: Add MCMCSampleIDVector to output
 # TODO: Fix granularity forwarding
 
-function Base.rand!(
+function Random.rand!(
     result::Tuple{DensitySampleVector, MCMCSampleIDVector, MCMCBasicStats},
     chainspec::MCMCSpec,
     nsamples::Integer,
@@ -77,7 +77,7 @@ end
 
 
 # # ToDo:
-# function Base.rand!(
+# function Random.rand!(
 #     result::Tuple{DensitySampleVector, MCMCSampleIDVector, MCMCBasicStats},
 #     chainspec::MCMCSpec,
 #     nsamples::Integer,
@@ -88,7 +88,7 @@ end
 # end
 
 
-function Base.rand(
+function Random.rand(
     chainspec::MCMCSpec,
     nsamples::Integer,
     nchains::Integer,

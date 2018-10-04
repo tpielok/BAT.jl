@@ -128,13 +128,13 @@ export ParamVolumeBounds
 Base.in(params::AbstractVector, bounds::ParamVolumeBounds) = in(params, bounds.vol)
 
 
-# Base.rand(rng::AbstractRNG, bounds::ParamVolumeBounds) =
+# Random.rand(rng::AbstractRNG, bounds::ParamVolumeBounds) =
 #     rand!(rng, bounds, Vector{float(eltype(bounds))}(nparams(bounds)))
 
-# Base.rand(rng::AbstractRNG, bounds::ParamVolumeBounds, n::Integer) =
+# Random.rand(rng::AbstractRNG, bounds::ParamVolumeBounds, n::Integer) =
 #     rand!(rng, bounds, Matrix{float(eltype(bounds))}(nparams(bounds), n))
 #
-# Base.rand!(rng::AbstractRNG, bounds::ParamVolumeBounds, x::StridedVecOrMat{<:Real}) = rand!(rng, spatialvolume(bounds), x)
+# Random.rand!(rng::AbstractRNG, bounds::ParamVolumeBounds, x::StridedVecOrMat{<:Real}) = rand!(rng, spatialvolume(bounds), x)
 
 
 nparams(b::ParamVolumeBounds) = ndims(b.vol)
