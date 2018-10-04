@@ -98,7 +98,7 @@ function Random.rand(
     init_strategy::MCMCInitStrategy = MCMCInitStrategy(tuner_config),
     burnin_strategy::MCMCBurninStrategy = MCMCBurninStrategy(tuner_config),
     kwargs...
-)
+)::Tuple{DensitySampleVector, MCMCSampleIDVector, MCMCBasicStats}
     result = (
         DensitySampleVector(chainspec(zero(Int64))),
         MCMCSampleIDVector(chainspec(zero(Int64))),
