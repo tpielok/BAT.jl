@@ -151,7 +151,7 @@ end
 
 function __init__()
     # STDERR object at runtime differs from precompilation:
-    _output_io[] = STDERR
+    _output_io[] = stderr
 end
 
 

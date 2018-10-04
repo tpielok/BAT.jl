@@ -15,7 +15,7 @@ Random.rand(rng::AbstractRNG, vol::SpatialVolume, n::Integer) =
     rand!(rng, vol, Matrix{float(eltype(vol))}(ndims(vol), n))
 
 
-doc"""
+@doc """
     log_volume(vol::SpatialVolume)
 
 Get the logarithm of the volume of the space in `vol`.
@@ -24,7 +24,7 @@ function log_volume end
 export log_volume
 
 
-doc"""
+@doc """
     fromuhc!(Y::VecOrMat, X::VecOrMat, vol::SpatialVolume)
 
 Bijective transformation of coordinates `X` within the unit hypercube to
@@ -42,7 +42,7 @@ Base.inv(::typeof(fromuhc!)) = inv_fromuhc!
 Base.inv(::typeof(inv_fromuhc!)) = fromuhc!
 
 
-doc"""
+@doc """
     fromuhc(X::VecOrMat, vol::SpatialVolume)
 
 Bijective transformation from unit hypercube to `vol`. See `fromuhc!`.
@@ -137,7 +137,7 @@ end
 # log_intersect_volume(a::HyperRectVolume{T}, b::HyperRectVolume{T}) where {T} = ...
 
 
-doc"""
+@doc """
     fromuhc!(Y::VecOrMat, X::VecOrMat, vol::HyperRectVolume)
 
 Linear bijective transformation from unit hypercube to hyper-rectangle `vol`.

@@ -7,7 +7,7 @@ function _check_rand_compat(s::Sampleable{Multivariate}, A::Union{AbstractVector
 end
 
 
-doc"""
+@doc """
     bat_sampler(d::Distribution)
 
 Tries to return a BAT-compatible sampler for Distribution d. A sampler is
@@ -27,7 +27,7 @@ export bat_sampler
 bat_sampler(d::Distribution) = Distributions.sampler(d)
 
 
-doc"""
+@doc """
     issymmetric_around_origin(d::Distribution)
 
 Returns `true` (resp. `false`) if the Distribution is symmetric (resp.
