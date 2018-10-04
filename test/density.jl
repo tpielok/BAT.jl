@@ -10,7 +10,7 @@ struct test_density <: AbstractDensity
 end
 
 BAT.nparams(td::test_density) = Int(3)
-BAT.sampler(td::test_density) = BAT.sampler(MvNormal(ones(3), PDMat(eye(3))))
+BAT.sampler(td::test_density) = BAT.sampler(MvNormal(ones(3), PDMat(Matrix{Float64}(I,3,3))))
 
 @testset "density" begin
 

@@ -18,8 +18,8 @@ AbstractRNGSeed() = Philox4xSeed()
 struct Philox4xSeed{T<:Random123_UInt} <: AbstractRNGSeed
     seed::NTuple{2,T}
 
-    Philox4xSeed{T}(seed::NTuple{2,T}) where {T<:Random123_UInt} = new{T}(seed)
-    Philox4xSeed{T}() where {T<:Random123_UInt} = new{T}(gen_seed(T, 2))
+    Philox4xSeed{T}(seed::NTuple{2,T}) where T<:Random123_UInt = new{T}(seed)
+    Philox4xSeed{T}() where T<:Random123_UInt = new{T}(gen_seed(T, 2))
 end
 
 export Philox4xSeed

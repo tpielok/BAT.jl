@@ -54,7 +54,7 @@ struct DensitySampleVector{P<:Real,T<:AbstractFloat,W<:Real} <: BATDataVector{De
         new{P,T,W}(params, log_value, weight)
 
     DensitySampleVector{P,T,W}(nparams::Integer) where {P<:Real,T<:AbstractFloat,W<:Real} =
-        new{P,T,W}(ElasticArray{P}(nparams, 0), Vector{T}(0), Vector{W}(0))
+        new{P,T,W}(ElasticArray{P}(undef, nparams, 0), Vector{T}(undef, 0), Vector{W}(undef, 0))
 end
 
 export DensitySampleVector

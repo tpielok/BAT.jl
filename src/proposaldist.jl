@@ -9,7 +9,7 @@ The following functions must be implemented for subtypes:
 * `BAT.distribution_logpdf`
 * `BAT.proposal_rand!`
 * `BAT.nparams`, returning the number of parameters (i.e. dimensionality).
-* `Base.issymmetric`, indicating whether p(a -> b) == p(b -> a) holds true.
+* `LinearAlgebra.issymmetric`, indicating whether p(a -> b) == p(b -> a) holds true.
 
 In some cases, it may be desirable to override the default implementation
 of `BAT.distribution_logpdf!`.
@@ -184,7 +184,7 @@ end
 
 nparams(pdist::GenericProposalDist) = length(pdist.d)
 
-Base.issymmetric(pdist::GenericProposalDist) = issymmetric_around_origin(pdist.d)
+LinearAlgebra.issymmetric(pdist::GenericProposalDist) = issymmetric_around_origin(pdist.d)
 
 
 

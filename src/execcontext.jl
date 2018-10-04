@@ -24,7 +24,7 @@ end
 
 export ExecContext
 
-ExecContext() = ExecContext(true, workers())
+ExecContext() = ExecContext(true, Distributed.workers())
 
 
 @doc """

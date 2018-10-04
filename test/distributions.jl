@@ -116,7 +116,7 @@ function Random.rand!(rng::AbstractRNG, s::test_batsampler, x::AbstractArray{T, 
 
         cmat = [3.76748 0.446731 0.625418; 0.446731 3.9317 0.237361; 0.625418 0.237361 3.43867]
         tmean = [1., 2, 3]
-        tmv = MvTDist(3, tmean, PDMat(eye(3)))
+        tmv = MvTDist(3, tmean, PDMat(Matrix{Float64}(I, 3, 3)))
 
         tmv = BAT.set_cov!(tmv, cmat)
         @test Matrix(BAT.get_cov(tmv)) ≈ cmat
