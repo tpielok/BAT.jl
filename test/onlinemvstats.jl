@@ -45,11 +45,11 @@ using StatsBase
         countM = 3
         mvmeans = Array{BAT.OnlineMvMean{Float64}}(countM)
 
-        for i in indices(mvmeans, 1)
+        for i in axes(mvmeans, 1)
             mvmeans[i] = BAT.OnlineMvMean(m)
         end
 
-        for i in indices(data, 2)
+        for i in axes(data, 2)
             push!(mvmean, data[:, i], w[i]);
             push!(mvmeans[(i % countM) + 1], data[:, i], w[i]);
         end
@@ -72,7 +72,7 @@ using StatsBase
 
         for wKind in [ProbabilityWeights, FrequencyWeights, AnalyticWeights, Weights]
             mvcov = BAT.OnlineMvCov{Float64, wKind}(m)
-            for i in indices(data, 2)
+            for i in axes(data, 2)
                 push!(mvcov, data[:, i], w[i]);
             end
 
@@ -81,12 +81,12 @@ using StatsBase
 
         countMvCovs = 3
         mvcovs = Array{BAT.OnlineMvCov{Float64, ProbabilityWeights}}(countMvCovs)
-        for i in indices(mvcovs,1)
+        for i in axes(mvcovs,1)
             mvcovs[i] = BAT.OnlineMvCov(m)
         end
         mvcovc = BAT.OnlineMvCov(m)
 
-        for i in indices(data, 2)
+        for i in axes(data, 2)
             push!(mvcovs[(i % countMvCovs) + 1], data[:, i], w[i]);
             push!(mvcovc, data[:, i], w[i]);
         end
@@ -125,8 +125,8 @@ using StatsBase
 
         # merbmvstats = merge(bmvs...)
 
-        # maxData =  [maximum(data[i, :]) for i in indices(data, 1)]
-        # minData =  [minimum(data[i, :]) for i in indices(data, 1)]
+        # maxData =  [maximum(data[i, :]) for i in axes(data, 1)]
+        # minData =  [minimum(data[i, :]) for i in axes(data, 1)]
 
         # for bs in [bmvstats, merbmvstats]
         #     @test bs.mean ≈  mean(data, Weights(w), 2)

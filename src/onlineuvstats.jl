@@ -232,15 +232,15 @@ Base.push!(ocv::OnlineUvStatistic, data::Real, weight::Real = 1) =
 
 
 @inline function Base.append!(stats::OnlineUvStatistic, data::AbstractVector{<:Real})
-    @inbounds for i in indices(data, 1)
+    @inbounds for i in axes(data, 1)
         push!(stats, data[i])
     end
     stats
 end
 
 @inline function Base.append!(stats::OnlineUvStatistic, data::AbstractVector{<:Real}, weights::AbstractVector{<:Real})
-    @assert indices(data) == indices(weights)# ToDo: Throw exception instead of assert
-    @inbounds for i in indices(data, 1)
+    @assert axes(data) == axes(weights)# ToDo: Throw exception instead of assert
+    @inbounds for i in axes(data, 1)
         push!(stats, data[i], weights[i])
     end
     stats

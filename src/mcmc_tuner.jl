@@ -99,7 +99,7 @@ function mcmc_init(
     length(tuners) < min_nviable && error("Failed to generate $min_nviable viable MCMC chains")
 
     m = nchains
-    tidxs = linearindices(tuners)
+    tidxs = LinearIndices(tuners)
     n = length(tidxs)
 
     mode_1 = tuners[1].stats.mode

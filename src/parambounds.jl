@@ -155,7 +155,7 @@ struct HyperRectBounds{T<:Real} <: ParamVolumeBounds{T, HyperRectVolume{T}}
     bt::Vector{BoundsType}
 
     function HyperRectBounds{T}(vol::HyperRectVolume{T}, bt::Vector{BoundsType}) where {T<:Real}
-        indices(bt) != (1:ndims(vol),) && throw(ArgumentError("bt must have indices (1:ndims(vol),)"))
+        axes(bt) != (1:ndims(vol),) && throw(ArgumentError("bt must have indices (1:ndims(vol),)"))
         isempty(vol) && throw(ArgumentError("vol must not be empty"))
         new{T}(vol, bt)
     end

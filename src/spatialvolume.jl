@@ -69,7 +69,7 @@ struct HyperRectVolume{T<:Real} <: SpatialVolume{T}
     hi::Vector{T}
 
     function HyperRectVolume{T}(lo::Vector{T}, hi::Vector{T}) where {T<:Real}
-        (indices(lo) != indices(hi)) && throw(ArgumentError("lo and hi must have the same indices"))
+        (axes(lo) != axes(hi)) && throw(ArgumentError("lo and hi must have the same indices"))
         new{T}(lo, hi)
     end
 end
@@ -96,7 +96,7 @@ Base.in(x::AbstractVector, vol::HyperRectVolume) =
 # function Base.in(X::AbstractMatrix, vol::HyperRectVolume, j::Integer)
 #     lo = vol.lo
 #     hi = vol.hi
-#     for i in indices(X, 1)
+#     for i in axes(X, 1)
 #         (lo[i] <= X[i, j] <= hi[i]) || return false
 #     end
 #     return true
@@ -124,7 +124,7 @@ function log_volume(vol::HyperRectVolume{T}) where {T}
     s = zero(S)
     hi = vol.hi
     lo = vol.lo
-    @assert indices(hi) == indices(lo)
+    @assert axes(hi) == axes(lo)
     @inbounds @simd for i in eachindex(hi)
         d = max(zero(R), R(hi[i]) - R(lo[i]))
         s += JuliaLibm.log(d)

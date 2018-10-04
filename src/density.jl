@@ -160,7 +160,7 @@ function density_logval!(
 )
 
     !(size(params, 1) == nparams(density)) && throw(ArgumentError("Invalid length of parameter vector"))
-    !(indices(params, 2) == indices(r, 1)) && throw(ArgumentError("Number of parameter vectors doesn't match length of result vector"))
+    !(axes(params, 2) == axes(r, 1)) && throw(ArgumentError("Number of parameter vectors doesn't match length of result vector"))
     unsafe_density_logval!(r, density, params, exec_context)
 end
 export density_logval!
@@ -192,7 +192,7 @@ function unsafe_density_logval!(
 )
     # TODO: Support for parallel execution
     single_ec = exec_context # Simplistic, will have to change for parallel execution
-    for i in eachindex(r, indices(params, 2))
+    for i in eachindex(r, axes(params, 2))
         p = view(params, :, i) # TODO: Avoid memory allocation
         r[i] = density_logval(density, p, single_ec)
     end
