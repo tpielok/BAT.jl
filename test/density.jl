@@ -2,6 +2,7 @@
 
 using BAT
 using Compat.Test
+using LinearAlgebra
 
 using Distributions, PDMats, StatsBase
 

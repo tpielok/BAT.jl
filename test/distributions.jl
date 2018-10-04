@@ -2,6 +2,7 @@
 
 using BAT
 using Compat.Test
+using Random
 
 using Distributions, PDMats, StatsBase
 

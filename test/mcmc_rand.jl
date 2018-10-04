@@ -1,8 +1,10 @@
 # This file is a part of BAT.jl, licensed under the MIT License (MIT).
 
 using BAT, BAT.Logging
-using Compat.Test
+#using Compat.Test
+using Test
 using Distributions, PDMats, StatsBase
+using Distributed
 
 @testset "mcmc_rand" begin
     @testset "rand" begin

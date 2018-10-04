@@ -21,6 +21,9 @@ using Parameters
 using PDMats
 using RecipesBase
 using StatsBase
+using Random
+using Distributions
+using LinearAlgebra
 
 import RandomNumbers
 
@@ -57,6 +60,7 @@ include("mh_tuner.jl")
 include("direct_sampler.jl")
 include("mcmc_rand.jl")
 include("plots_recipes.jl")
+include("distributions.jl")
 
 Logging.@enable_logging
 

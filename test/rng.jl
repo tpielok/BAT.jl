@@ -2,6 +2,7 @@
 
 using BAT
 using Compat.Test
+using Random
 
 @testset "rng" begin
     @testset "AbstractRNGSeed" begin
