@@ -99,7 +99,7 @@ function Random.rand!(rng::AbstractRNG, s::BATSampler{Multivariate}, A::Abstract
     return A
 end
 
-Random.rand(rng::AbstractRNG, s::BATSampler{Multivariate}, n::Int) = rand!(rng, s, Matrix{eltype(s)}(length(s), n))
+Random.rand(rng::AbstractRNG, s::BATSampler{Multivariate}, n::Int) = rand!(rng, s, Matrix{eltype(s)}(undef, length(s), n))
 
 
 

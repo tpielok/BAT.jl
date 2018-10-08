@@ -6,7 +6,7 @@ module BAT
 
 using Base.Threads
 
-import Base.Math.JuliaLibm
+# import Base.Math.JuliaLibm
 
 
 using Clustering
@@ -60,7 +60,6 @@ include("mh_tuner.jl")
 include("direct_sampler.jl")
 include("mcmc_rand.jl")
 include("plots_recipes.jl")
-include("distributions.jl")
 
 Logging.@enable_logging
 

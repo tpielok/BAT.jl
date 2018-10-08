@@ -4,7 +4,7 @@
 # ToDo: Add `density_logvalgrad!` to support HMC, etc.
 
 
-doc"""
+@doc """
     AbstractDensity
 
 The following functions must be implemented for subtypes:
@@ -33,7 +33,7 @@ Random.rand!(rng::AbstractRNG, density::AbstractDensity, x::StridedVecOrMat{<:Re
 
 
 
-doc"""
+@doc """
     param_bounds(density::AbstractDensity)::AbstractParamBounds
 
 Get the parameter bounds of `density`. See `density_logval!` for the
@@ -51,7 +51,7 @@ end
 export param_bounds
 
 
-# doc"""
+# @doc """
 #     getindex(density::AbstractDensity, bounds::ParamVolumeBounds)
 #
 # Limit `density` to `bounds`. See `param_bounds` and `density_logval!`.
@@ -65,7 +65,7 @@ Base.convert(::Type{AbstractDensity}, bounds::ParamVolumeBounds) =
 
 
 
-doc"""
+@doc """
     density_logval(
         density::AbstractDensity,
         params::AbstractVector{<:Real},
@@ -94,7 +94,7 @@ exec_capabilities(::typeof(density_logval), density::AbstractDensity, params::Ab
     exec_capabilities(unsafe_density_logval, density, params)
 
 
-doc"""
+@doc """
     BAT.unsafe_density_logval(
         density::AbstractDensity,
         params::AbstractVector{<:Real},
@@ -116,7 +116,7 @@ exec_capabilities(::typeof(unsafe_density_logval), density::AbstractDensity, arg
 
 
 
-doc"""
+@doc """
     density_logval!(
         r::AbstractArray{<:Real},
         density::AbstractDensity,
@@ -169,7 +169,7 @@ exec_capabilities(::typeof(density_logval!), r::AbstractArray{<:Real}, density::
     exec_capabilities(unsafe_density_logval!, r, density, params)
 
 
-doc"""
+@doc """
     BAT.unsafe_density_logval!(
         r::AbstractArray{<:Real},
         density::AbstractDensity,
@@ -205,7 +205,7 @@ exec_capabilities(::typeof(unsafe_density_logval!), r::AbstractArray{<:Real}, de
 
 
 
-doc"""
+@doc """
     GenericDensity{F} <: AbstractDensity
 
 Constructors:

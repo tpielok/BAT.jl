@@ -9,10 +9,10 @@ export SpatialVolume
 Base.eltype(b::SpatialVolume{T}) where T = T
 
 Random.rand(rng::AbstractRNG, vol::SpatialVolume) =
-    rand!(rng, vol, Vector{float(eltype(vol))}(ndims(vol)))
+    rand!(rng, vol, Vector{float(eltype(vol))}(undef, ndims(vol)))
 
 Random.rand(rng::AbstractRNG, vol::SpatialVolume, n::Integer) =
-    rand!(rng, vol, Matrix{float(eltype(vol))}(ndims(vol), n))
+    rand!(rng, vol, Matrix{float(eltype(vol))}(undef, ndims(vol), n))
 
 
 @doc """
@@ -127,7 +127,7 @@ function log_volume(vol::HyperRectVolume{T}) where {T}
     @assert axes(hi) == axes(lo)
     @inbounds @simd for i in eachindex(hi)
         d = max(zero(R), R(hi[i]) - R(lo[i]))
-        s += JuliaLibm.log(d)
+        s += Base.log(d)
     end
     R(s)
 end

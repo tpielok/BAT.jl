@@ -27,7 +27,7 @@ end
 
 
 
-doc"""
+@doc """
     OnlineMvMean{T<:AbstractFloat} <: AbstractVector{T}
 
 Multi-variate mean implemented via Kahan-Babuška-Neumaier summation.
@@ -103,7 +103,7 @@ end
 
 
 
-doc"""
+@doc """
     OnlineMvCov{T<:AbstractFloat,W} <: AbstractMatrix{T}
 
 Implementation based on variance calculation Algorithms of Welford and West.
@@ -248,12 +248,12 @@ end
         mean_X = Mean_X[i]
         New_Mean_X[i] = muladd(x - mean_X, weight_over_sum_w, mean_X)
     end
-    
+
     @inbounds for j in idxs
         new_dx_j = data[j + dshft] - New_Mean_X[j]
 
-        j_offs = sub2ind(S, last(idxs), j) - last(idxs)
-        #@assert sub2ind(S, last(idxs), j) == last(idxs) + j_offs  # TODO: Use exception instead of assert
+        j_offs = (LinearIndices(S))[last(idxs), j] - last(idxs)
+        #@assert (LinearIndices((S))[last(idxs), j] == last(idxs) + j_offs  # TODO: Use exception instead of assert
         @simd for i in idxs
             dx_i = data[i + dshft] - Mean_X[i]
             S[i + j_offs] = muladd(dx_i, weight_conv * new_dx_j, S[i + j_offs])
@@ -271,7 +271,7 @@ end
     ocv
 end
 
-doc"""
+@doc """
     BasicMvStatistics{T<:Real,W}
 
 `W` must either be `Weights` (no bias correction) or one of `AnalyticWeights`,
@@ -328,7 +328,7 @@ function push_contiguous!(
     dshft = Int(start) - 1
 
     @assert idxs == axes(max_v, 1) == axes(min_v, 1)  # TODO: Use exception instead of assert
-    checkbounds(data, idxs + dshft)
+    checkbounds(data, idxs .+ dshft)
 
     @inbounds @simd for i in idxs
         x = data[i + dshft]
@@ -354,7 +354,7 @@ function Base.append!(target::OnlineMvStatistic, data::Matrix, vardim::Integer =
     elseif (vardim == 2)
         @assert target.m == size(data, 1)  # TODO: Use exception instead of assert
         @inbounds for i in axes(data, 2)
-            push_contiguous!(target, data, sub2ind(data, 1, i))
+            push_contiguous!(target, data, (LinearIndices(data))[1, i])
         end
     else
         throw(ArgumentError("Value of vardim must be 2, not $vardim"))
@@ -371,7 +371,7 @@ function Base.append!(target::OnlineMvStatistic, data::Matrix, weights::Vector, 
         @assert target.m == size(data, 1)  # TODO: Use exception instead of assert
         @assert axes(data, 2) == axes(weights, 1)  # TODO: Use exception instead of assert
         @inbounds for i in axes(data, 2)
-            push_contiguous!(target, data, sub2ind(data, 1, i), weights[i])
+            push_contiguous!(target, data, (LinearIndices(data))[1, i], weights[i])
         end
     else
         throw(ArgumentError("Value of vardim must be 2, not $vardim"))

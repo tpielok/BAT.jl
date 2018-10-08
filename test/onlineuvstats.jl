@@ -2,6 +2,7 @@
 
 using BAT
 using StatsBase
+using Test
 
 @testset "onlineuvstats" begin
     n = 10

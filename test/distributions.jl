@@ -1,7 +1,8 @@
 # This file is a part of BAT.jl, licensed under the MIT License (MIT).
 
 using BAT
-using Compat.Test
+# using Compat.Test
+using Test
 using Random
 
 using Distributions, PDMats, StatsBase
@@ -55,7 +56,7 @@ function Random.rand!(rng::AbstractRNG, s::test_batsampler, x::AbstractArray{T, 
         @test typeof(res) == Array{Float32,2}
         @test size(res) == (2,3)
 
-        bstmv = BAT.BATMvTDistSampler(MvTDist(1.5, PDMat(diagm(ones(3)))))
+        bstmv = BAT.BATMvTDistSampler(MvTDist(1.5, PDMat(Matrix{Float64}(I, 3, 3))))
         res = BAT.rand(bstmv)
         @test typeof(res) == Array{Float64, 1}
         @test size(res) == (3,)
@@ -72,8 +73,8 @@ function Random.rand!(rng::AbstractRNG, s::test_batsampler, x::AbstractArray{T, 
         @test issymmetric_around_origin(Chisq(20.3)) == false
         @test issymmetric_around_origin(MvNormal(zeros(2), ones(2))) == true
         @test issymmetric_around_origin(MvNormal(ones(2), ones(2))) == false
-        @test issymmetric_around_origin(MvTDist(1.5, zeros(2), PDMat(diagm(ones(2)))))
-        @test issymmetric_around_origin(MvTDist(1.5, ones(2), PDMat(diagm(ones(2))))) == false
+        @test issymmetric_around_origin(MvTDist(1.5, zeros(2), PDMat(Matrix{Float64}(I, 2, 2))))
+        @test issymmetric_around_origin(MvTDist(1.5, ones(2), PDMat(Matrix{Float64}(I, 2, 2)))) == false
     end
 
 
@@ -126,7 +127,7 @@ function Random.rand!(rng::AbstractRNG, s::test_batsampler, x::AbstractArray{T, 
         n = 1000
         res = rand(MersenneTwister(7002), bstmv, n)
 
-        @test isapprox(mean(res,2), tmean; atol = 0.5)
-        @test isapprox(cov(res, 2)/3, cmat; atol = 1.5)
+        @test isapprox(mean(res,dims=2), tmean; atol = 0.5)
+        @test isapprox(cov(res, dims=2)/3, cmat; atol = 1.5)
     end
 end

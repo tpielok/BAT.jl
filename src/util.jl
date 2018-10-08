@@ -2,7 +2,7 @@
 
 
 _car_cdr_impl() = ()
-_car_cdr_impl(x, y...) = (x, (y...))
+_car_cdr_impl(x, y...) = (x, (y...,))
 _car_cdr(tp::Tuple) = _car_cdr_impl(tp...)
 
 function _all_lteq(A::AbstractArray, B::AbstractArray, C::AbstractArray)
@@ -28,7 +28,7 @@ _all_lteq(a::Real, B::AbstractArray, c::Real) = _all_lteq_impl(a, B, c)
 _all_in_ui(X::AbstractArray) = _all_lteq_impl(0, X, 1)
 
 
-doc"""
+@doc """
     y = fromui(x::Real, lo::Real, hi::Real)
     y = fromui(x::Real, lo_hi::ClosedInterval{<:Real})
 

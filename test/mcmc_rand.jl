@@ -5,6 +5,7 @@ using BAT, BAT.Logging
 using Test
 using Distributions, PDMats, StatsBase
 using Distributed
+using Random
 
 @testset "mcmc_rand" begin
     @testset "rand" begin
@@ -19,10 +20,10 @@ using Distributed
         nsamples_per_chain = 2000
         nchains = 4
 
-        # algorithmMW = @inferred MetropolisHastings()
+        # algorithmMW = @inferred MetropolisHastings() TODO: put back the @inferred
         algorithmMW = MetropolisHastings()
         @test BAT.mcmc_compatible(algorithmMW, GenericProposalDist(mv_dist), NoParamBounds(2))
-#        samples, sampleids, stats = @inferred rand(
+#        samples, sampleids, stats = @inferred rand( TODO: put back the @inferred
         samples, sampleids, stats = rand(
             MCMCSpec(algorithmMW, density, bounds),
             nsamples_per_chain,

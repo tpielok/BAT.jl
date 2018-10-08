@@ -1,7 +1,7 @@
 # This file is a part of BAT.jl, licensed under the MIT License (MIT).
 
 
-doc"""
+@doc """
     nparams(X::Union{AbstractParamBounds,MCMCIterator,...})
 
 Get the number of parameters of `X`.
@@ -50,7 +50,7 @@ end
 @inline float_iseven(n::T) where {T<:AbstractFloat} = (n - T(2) * floor((n + T(0.5)) * T(0.5))) < T(0.5)
 
 
-doc"""
+@doc """
     apply_bounds!(params::AbstractVector, bounds::AbstractParamBounds)
 
 Apply `bounds` to parameters `params`.
@@ -58,7 +58,7 @@ Apply `bounds` to parameters `params`.
 function apply_bounds! end
 
 
-doc"""
+@doc """
     apply_bounds(x::<:Real, lo::<:Real, hi::<:Real, boundary_type::BoundsType)
 
 Apply lower/upper bound `lo`/`hi` to value `x`. `boundary_type` may be
@@ -91,7 +91,7 @@ Apply lower/upper bound `lo`/`hi` to value `x`. `boundary_type` may be
     )
 end
 
-doc"""
+@doc """
     apply_bounds(x::Real, interval::ClosedInterval, boundary_type::BoundsType)
 
 Specify lower and upper bound via `interval`.
@@ -140,7 +140,7 @@ Base.in(params::AbstractVector, bounds::ParamVolumeBounds) = in(params, bounds.v
 nparams(b::ParamVolumeBounds) = ndims(b.vol)
 
 
-doc"""
+@doc """
     spatialvolume(b::ParamVolumeBounds)::SpatialVolume
 
 Returns the spatial volume that defines the parameter bounds.
@@ -169,7 +169,7 @@ HyperRectBounds(lo::AbstractVector{T}, hi::AbstractVector{T}, bt::BoundsType) wh
 HyperRectBounds(intervals::AbstractVector{<:ClosedInterval{<:Real}}, bt) = HyperRectBounds(minimum.(intervals), maximum.(intervals), bt)
 
 Base.similar(bounds::HyperRectBounds) = HyperRectBounds(
-    HyperRectVolume(zeros(bounds.vol.lo), ones(bounds.vol.hi)),
+    HyperRectVolume(fill(0.,size(bounds.vol.lo)), fill(1.,size(bounds.vol.hi))),
     similar(bounds.bt))
 
 Base.eltype(bounds::HyperRectBounds{T}) where {T} = T

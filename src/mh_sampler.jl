@@ -24,18 +24,13 @@ struct MetropolisHastings{
 } <: MCMCAlgorithm{AcceptRejectState}
     q::Q
     weighting_scheme::WS
+    MetropolisHastings(q::Q,weighting_scheme::WS) where {
+        Q<:ProposalDistSpec, W<:Real, WS<:MHWeightingScheme{W}} =
+        new{Q,W,WS}(q, weighting_scheme)
 end
 
 export MetropolisHastings
 
-MetropolisHastings(
-    q::Q,
-    weighting_scheme::WS
-) where {
-    Q<:ProposalDistSpec,
-    W<:Real,
-    WS<:MHWeightingScheme{W}
-} = MetropolisHastings{Q,W,WS}(q, weighting_scheme)
 
 MetropolisHastings(q::ProposalDistSpec = MvTDistProposalSpec()) = MetropolisHastings(q, MHMultiplicityWeights())
 MetropolisHastings(weighting_scheme::MHWeightingScheme) = MetropolisHastings(MvTDistProposalSpec(), weighting_scheme)

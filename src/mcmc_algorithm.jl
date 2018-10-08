@@ -210,7 +210,7 @@ function (spec::MCMCSpec)(
 end
 
 
-doc"""
+@doc """
     AbstractMCMCCallback <: Function
 
 Subtypes (e.g. `X`) must support
@@ -223,14 +223,15 @@ to be compabtible with `mcmc_iterate!`, `mcmc_tune_burnin!`, etc.
 abstract type AbstractMCMCCallback <: Function end
 export AbstractMCMCCallback
 
-
+# TODO!!!!
+# TODO!!!!
+# TODO!!!!
 @inline Base.convert(::Type{AbstractMCMCCallback}, x::AbstractMCMCCallback) = x
 
 @inline Base.convert(::Type{Vector{AbstractMCMCCallback}}, V::Vector{<:AbstractMCMCCallback}) = V
 
 Base.convert(::Type{Vector{AbstractMCMCCallback}}, V::Vector) =
     [convert(AbstractMCMCCallback, x) for x in V]
-
 
 function mcmc_callback_vector(x, chains::AbstractVector{<:MCMCIterator})
     V = convert(Vector{AbstractMCMCCallback}, x)
@@ -241,12 +242,15 @@ function mcmc_callback_vector(x, chains::AbstractVector{<:MCMCIterator})
 end
 
 
+# TODO!!!!
+# TODO!!!!
+# TODO!!!!
 mcmc_callback_vector(x::Tuple{}, chains::AbstractVector{<:MCMCIterator}) =
     [MCMCNopCallback() for _ in chains]
 
 
 
-doc"""
+@doc """
     MCMCCallbackWrapper{F} <: AbstractMCMCCallback
 
 Wraps a callable object to turn it into an `AbstractMCMCCallback`.

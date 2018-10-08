@@ -21,10 +21,10 @@ end
 
 
 
-doc"""
+@doc """
     gr_Rsqr(stats::AbstractVector{<:MCMCBasicStats})
 
-Gelman-Rubin $R^2$ for all parameters.
+Gelman-Rubin ``\$R^2\$`` for all parameters.
 """
 function gr_Rsqr(stats::AbstractVector{<:MCMCBasicStats})
     m = nparams(first(stats))
@@ -35,10 +35,10 @@ end
 
 
 
-doc"""
+@doc """
     GRConvergence
 
-Gelman-Rubin $maximum(R^2)$ convergence test.
+Gelman-Rubin ``\$maximum(R^2)\$`` convergence test.
 """
 struct GRConvergence <: MCMCConvergenceTest
     threshold::Float64

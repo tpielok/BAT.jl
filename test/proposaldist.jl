@@ -2,7 +2,8 @@
 
 using BAT
 using Distributions
-using Compat.Test
+# using Compat.Test
+using Test
 using PDMats
 
 struct test_mvdist <: Distribution{Multivariate, Continuous}
@@ -56,9 +57,9 @@ test_sampler(tmv::test_mvdist) = tmv.d
         d = MvTDist(1.5, zeros(2), PDMat([1. 0.5; 0.5 2]))
         gpd = @inferred GenericProposalDist(d)
         @test Matrix(BAT.get_cov(gpd)) ≈ [1. 0.5; 0.5 2]
-        gpd = @inferred BAT.set_cov!(gpd, diagm(ones(2)))
+        gpd = @inferred BAT.set_cov!(gpd, Matrix{Float64}(I, 2, 2))
 
-        @test Matrix(BAT.get_cov(gpd)) ≈ diagm(ones(2))
+        @test Matrix(BAT.get_cov(gpd)) ≈ Matrix{Float64}(I, 2, 2)
 
         @test nparams(gpd) == 2
         @test issymmetric(gpd)

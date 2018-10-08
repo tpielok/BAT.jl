@@ -2,6 +2,7 @@
 
 using RandomNumbers.Random123: Philox4x, Threefry4x
 using RandomNumbers.Random123: random123_r, gen_seed
+using Random
 
 const Random123_UInt = Union{UInt32, UInt64}
 const Random123RNG4x = Union{Philox4x, Threefry4x}

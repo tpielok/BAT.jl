@@ -1,5 +1,6 @@
 using BAT
-using Compat.Test
+# using Compat.Test
+using Test
 using Distributions
 
 
