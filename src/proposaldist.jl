@@ -1,7 +1,7 @@
 # This file is a part of BAT.jl, licensed under the MIT License (MIT).
 
 
-doc"""
+@doc """
     AbstractProposalDist
 
 The following functions must be implemented for subtypes:
@@ -9,7 +9,7 @@ The following functions must be implemented for subtypes:
 * `BAT.distribution_logpdf`
 * `BAT.proposal_rand!`
 * `BAT.nparams`, returning the number of parameters (i.e. dimensionality).
-* `Base.issymmetric`, indicating whether p(a -> b) == p(b -> a) holds true.
+* `LinearAlgebra.issymmetric`, indicating whether p(a -> b) == p(b -> a) holds true.
 
 In some cases, it may be desirable to override the default implementation
 of `BAT.distribution_logpdf!`.
@@ -18,7 +18,7 @@ abstract type AbstractProposalDist end
 export AbstractProposalDist
 
 
-doc"""
+@doc """
     distribution_logpdf(
         pdist::AbstractProposalDist,
         params_new::AbstractVector,
@@ -33,7 +33,7 @@ export distribution_logpdf
 # TODO: Implement distribution_logpdf for included proposal distributions
 
 
-doc"""
+@doc """
     distribution_logpdf!(
         p::AbstractArray,
         pdist::AbstractProposalDist,
@@ -69,7 +69,7 @@ export distribution_logpdf!
 # TODO: Default implementation of distribution_logpdf!
 
 
-doc"""
+@doc """
     function proposal_rand!(
         rng::AbstractRNG,
         pdist::GenericProposalDist,
@@ -184,7 +184,7 @@ end
 
 nparams(pdist::GenericProposalDist) = length(pdist.d)
 
-Base.issymmetric(pdist::GenericProposalDist) = issymmetric_around_origin(pdist.d)
+LinearAlgebra.issymmetric(pdist::GenericProposalDist) = issymmetric_around_origin(pdist.d)
 
 
 

@@ -114,7 +114,7 @@ function MCMCIterator(
     cycle = zero(Int)
     reset_rng_counters!(rng, MCMCSampleID(id, cycle, 0))
 
-    params_vec = Vector{P}(nparams(target))
+    params_vec = Vector{P}(undef, nparams(target))
     if isempty(initial_params)
         rand_initial_params!(rng, algorithm, prior, params_vec)
     else
@@ -182,7 +182,7 @@ function mcmc_step!(
 
     if state.proposal_accepted
         reset_rng_counters!(chain.rng, MCMCSampleID(chain))
-        copy!(current_sample, proposed_sample)
+        copyto!(current_sample, proposed_sample)
         state.current_nreject = 0
         state.proposal_accepted = false
     end

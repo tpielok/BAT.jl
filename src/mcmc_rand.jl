@@ -1,10 +1,10 @@
 # This file is a part of BAT.jl, licensed under the MIT License (MIT).
-
+using Distributed
 
 # TODO: Add MCMCSampleIDVector to output
 # TODO: Fix granularity forwarding
 
-function Base.rand!(
+function Random.rand!(
     result::Tuple{DensitySampleVector, MCMCSampleIDVector, MCMCBasicStats},
     chainspec::MCMCSpec,
     nsamples::Integer,
@@ -77,7 +77,7 @@ end
 
 
 # # ToDo:
-# function Base.rand!(
+# function Random.rand!(
 #     result::Tuple{DensitySampleVector, MCMCSampleIDVector, MCMCBasicStats},
 #     chainspec::MCMCSpec,
 #     nsamples::Integer,
@@ -88,7 +88,7 @@ end
 # end
 
 
-function Base.rand(
+function Random.rand(
     chainspec::MCMCSpec,
     nsamples::Integer,
     nchains::Integer,
@@ -98,6 +98,7 @@ function Base.rand(
     init_strategy::MCMCInitStrategy = MCMCInitStrategy(tuner_config),
     burnin_strategy::MCMCBurninStrategy = MCMCBurninStrategy(tuner_config),
     kwargs...
+# )::Tuple{DensitySampleVector, MCMCSampleIDVector, MCMCBasicStats}
 )
     result = (
         DensitySampleVector(chainspec(zero(Int64))),
@@ -105,7 +106,7 @@ function Base.rand(
         MCMCBasicStats(chainspec(zero(Int64)))
     )
 
-    rand!(
+    Random.rand!(
         result,
         chainspec,
         nsamples,

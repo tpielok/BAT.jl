@@ -29,8 +29,8 @@ import Base.==
     A.params == B.params && A.log_value == B.log_value && A.weight == B.weight
 
 
-function Base.copy!(dest::DensitySample, src::DensitySample) 
-    copy!(dest.params, src.params)
+function Base.copyto!(dest::DensitySample, src::DensitySample)
+    copyto!(dest.params, src.params)
     dest.log_value = src.log_value
     dest.weight = src.weight
     dest
@@ -54,7 +54,7 @@ struct DensitySampleVector{P<:Real,T<:AbstractFloat,W<:Real} <: BATDataVector{De
         new{P,T,W}(params, log_value, weight)
 
     DensitySampleVector{P,T,W}(nparams::Integer) where {P<:Real,T<:AbstractFloat,W<:Real} =
-        new{P,T,W}(ElasticArray{P}(nparams, 0), Vector{T}(0), Vector{W}(0))
+        new{P,T,W}(ElasticArray{P}(undef, nparams, 0), Vector{T}(undef, 0), Vector{W}(undef, 0))
 end
 
 export DensitySampleVector

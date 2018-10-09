@@ -6,7 +6,7 @@ module BAT
 
 using Base.Threads
 
-import Base.Math.JuliaLibm
+# import Base.Math.JuliaLibm
 
 
 using Clustering
@@ -21,6 +21,9 @@ using Parameters
 using PDMats
 using RecipesBase
 using StatsBase
+using Random
+using Distributions
+using LinearAlgebra
 
 import RandomNumbers
 

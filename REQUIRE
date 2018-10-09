@@ -13,3 +13,6 @@ PDMats
 RandomNumbers
 RecipesBase
 StatsBase
+Random
+Distributions
+LinearAlgebra

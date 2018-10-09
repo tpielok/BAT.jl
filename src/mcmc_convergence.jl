@@ -21,24 +21,24 @@ end
 
 
 
-doc"""
+@doc """
     gr_Rsqr(stats::AbstractVector{<:MCMCBasicStats})
 
-Gelman-Rubin $R^2$ for all parameters.
+Gelman-Rubin ``\$R^2\$`` for all parameters.
 """
 function gr_Rsqr(stats::AbstractVector{<:MCMCBasicStats})
     m = nparams(first(stats))
-    W = mean([cs.param_stats.cov[i,i] for cs in stats, i in 1:m], 1)[:]
-    B = var([cs.param_stats.mean[i] for cs in stats, i in 1:m], 1)[:]
+    W = mean([cs.param_stats.cov[i,i] for cs in stats, i in 1:m], dims=1)[:]
+    B = var([cs.param_stats.mean[i] for cs in stats, i in 1:m], dims=1)[:]
     (W .+ B) ./ W
 end
 
 
 
-doc"""
+@doc """
     GRConvergence
 
-Gelman-Rubin $maximum(R^2)$ convergence test.
+Gelman-Rubin ``\$maximum(R^2)\$`` convergence test.
 """
 struct GRConvergence <: MCMCConvergenceTest
     threshold::Float64

@@ -1,7 +1,9 @@
 # This file is a part of BAT.jl, licensed under the MIT License (MIT).
 
 using BAT
-using Compat.Test
+# using Compat.Test
+using Test
+using Random
 
 using Distributions, PDMats, StatsBase
 
@@ -10,12 +12,12 @@ Distributions.sampler(d::test_dist) = Distributions.sampler(Distributions.Normal
 
 struct test_batsampler{T} <: BATSampler{T, Continuous} end
 
-function Base.rand!(rng::AbstractRNG, s::test_batsampler, x::Integer)
+function Random.rand!(rng::AbstractRNG, s::test_batsampler, x::Integer)
     return 0.5
 end
 Base.length(s::test_batsampler{Multivariate}) = 2
-function Base.rand!(rng::AbstractRNG, s::test_batsampler, x::AbstractArray{T, 1} where T)
-    for i in indices(x)[1]
+function Random.rand!(rng::AbstractRNG, s::test_batsampler, x::AbstractArray{T, 1} where T)
+    for i in axes(x)[1]
         x[i] = 1
     end
     return x
@@ -50,11 +52,11 @@ function Base.rand!(rng::AbstractRNG, s::test_batsampler, x::AbstractArray{T, 1}
         BAT.rand!(test_batsampler{Multivariate}(), x)
         @test x == ones(2,3)
 
-        res = BAT.rand(Base.GLOBAL_RNG, bsguv, Dims((2,3)))
+        res = BAT.rand(Random.GLOBAL_RNG, bsguv, Dims((2,3)))
         @test typeof(res) == Array{Float32,2}
         @test size(res) == (2,3)
 
-        bstmv = BAT.BATMvTDistSampler(MvTDist(1.5, PDMat(diagm(ones(3)))))
+        bstmv = BAT.BATMvTDistSampler(MvTDist(1.5, PDMat(Matrix{Float64}(I, 3, 3))))
         res = BAT.rand(bstmv)
         @test typeof(res) == Array{Float64, 1}
         @test size(res) == (3,)
@@ -71,8 +73,8 @@ function Base.rand!(rng::AbstractRNG, s::test_batsampler, x::AbstractArray{T, 1}
         @test issymmetric_around_origin(Chisq(20.3)) == false
         @test issymmetric_around_origin(MvNormal(zeros(2), ones(2))) == true
         @test issymmetric_around_origin(MvNormal(ones(2), ones(2))) == false
-        @test issymmetric_around_origin(MvTDist(1.5, zeros(2), PDMat(diagm(ones(2)))))
-        @test issymmetric_around_origin(MvTDist(1.5, ones(2), PDMat(diagm(ones(2))))) == false
+        @test issymmetric_around_origin(MvTDist(1.5, zeros(2), PDMat(Matrix{Float64}(I, 2, 2))))
+        @test issymmetric_around_origin(MvTDist(1.5, ones(2), PDMat(Matrix{Float64}(I, 2, 2)))) == false
     end
 
 
@@ -115,7 +117,7 @@ function Base.rand!(rng::AbstractRNG, s::test_batsampler, x::AbstractArray{T, 1}
 
         cmat = [3.76748 0.446731 0.625418; 0.446731 3.9317 0.237361; 0.625418 0.237361 3.43867]
         tmean = [1., 2, 3]
-        tmv = MvTDist(3, tmean, PDMat(eye(3)))
+        tmv = MvTDist(3, tmean, PDMat(Matrix{Float64}(I, 3, 3)))
 
         tmv = BAT.set_cov!(tmv, cmat)
         @test Matrix(BAT.get_cov(tmv)) ≈ cmat
@@ -125,7 +127,7 @@ function Base.rand!(rng::AbstractRNG, s::test_batsampler, x::AbstractArray{T, 1}
         n = 1000
         res = rand(MersenneTwister(7002), bstmv, n)
 
-        @test isapprox(mean(res,2), tmean; atol = 0.5)
-        @test isapprox(cov(res, 2)/3, cmat; atol = 1.5)
+        @test isapprox(mean(res,dims=2), tmean; atol = 0.5)
+        @test isapprox(cov(res, dims=2)/3, cmat; atol = 1.5)
     end
 end

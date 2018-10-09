@@ -2,6 +2,7 @@
 
 using BAT
 using StatsBase
+using Test
 
 @testset "onlineuvstats" begin
     n = 10
@@ -24,12 +25,12 @@ using StatsBase
         @test res[] ≈ mdata
 
         numMeans = 3
-        means = Array{BAT.OnlineUvMean{T}}(numMeans)
-        for i in indices(means, 1)
+        means = Array{BAT.OnlineUvMean{T}}(undef, numMeans)
+        for i in axes(means, 1)
             means[i] = OnlineUvMean()
         end
 
-        for i in indices(data, 1)
+        for i in axes(data, 1)
             x = (i % numMeans) + 1
             means[x] = push!(means[x], data[i], w[i]);
         end
@@ -49,12 +50,12 @@ using StatsBase
         end
 
         numVars = 3
-        vars = Array{BAT.OnlineUvVar{T, wK}}(numVars)
-        for i in indices(vars, 1)
+        vars = Array{BAT.OnlineUvVar{T, wK}}(undef, numVars)
+        for i in axes(vars, 1)
             vars[i] = OnlineUvVar()
         end
 
-        for i in indices(data, 1)
+        for i in axes(data, 1)
             x = (i % numVars) + 1
             vars[x] = push!(vars[x], data[i], w[i]);
         end
@@ -76,12 +77,12 @@ using StatsBase
         @test res.minimum ≈ mindata
 
         numStats = 3
-        stats = Array{BAT.BasicUvStatistics{T, wK}}(numStats)
-        for i in indices(stats, 1)
+        stats = Array{BAT.BasicUvStatistics{T, wK}}(undef, numStats)
+        for i in axes(stats, 1)
             stats[i] = BasicUvStatistics{T, wK}()
         end
 
-        for i in indices(data, 1)
+        for i in axes(data, 1)
             x = (i % numStats) + 1
             stats[x] = push!(stats[x], data[i], w[i]);
         end
